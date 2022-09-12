@@ -1,0 +1,46 @@
+complexity:
+  LongParameterList:
+    excludes:
+      - "**/test/**"
+    constructorThreshold: 8
+  TooManyFunctions:
+    excludes:
+      - "**/test/**"
+    thresholdInInterfaces: 15
+    thresholdInObjects: 15
+    thresholdInClasses: 15
+
+style:
+  MagicNumber:
+    excludes:
+      - "**/test/**"
+  CollapsibleIfStatements:
+    active: true
+  ExplicitCollectionElementAccessMethod:
+    active: true
+  UnnecessaryFilter:
+    active: true
+  UseAnyOrNoneInsteadOfFind:
+    active: true
+  UseDataClass:
+    active: true
+    allowVars: true
+  UseIfEmptyOrIfBlank:
+    active: true
+  UseIsNullOrEmpty:
+    active: true
+  UseOrEmpty:
+    active: true
+  DataClassShouldBeImmutable:
+    active: true
+  UnusedPrivateMember:
+    excludes:
+      - "**/test/**"
+
+naming:
+  MatchingDeclarationName:
+    active: false
+
+formatting:
+  ImportOrdering:
+    active: false

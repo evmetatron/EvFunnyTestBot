@@ -1,0 +1,4 @@
+properties:
+  telegram:
+    name: ${EV_BOT_NAME}
+    token: ${EV_BOT_TOKEN}

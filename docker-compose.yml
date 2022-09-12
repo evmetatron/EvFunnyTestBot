@@ -1,0 +1,14 @@
+version: '3.7'
+services:
+  evfunnytest_db:
+    image: 'postgres:14'
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_DB: ${EV_POSTGRES_DB}
+      POSTGRES_USER: ${EV_POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${EV_POSTGRES_PASSWORD}
+    volumes:
+      - 'postgres_data:/var/lib/postgresql/data'
+volumes:
+  postgres_data: null
