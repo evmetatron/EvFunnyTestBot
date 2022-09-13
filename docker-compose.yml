@@ -10,5 +10,9 @@ services:
       POSTGRES_PASSWORD: ${EV_POSTGRES_PASSWORD}
     volumes:
       - 'postgres_data:/var/lib/postgresql/data'
+  evfunnytest_redis:
+    image: redis
+    ports:
+      - '6379:6379'
 volumes:
   postgres_data: null
