@@ -20,6 +20,8 @@ internal class ChainOfResponsibilityFactory<T : Any>(
             .sortedByDescending { (index, _) -> index }
             .map { (_, kClass) -> kClass }
 
+        val factory = applicationContext.autowireCapableBeanFactory
+
         chainsDescending.forEach { clazz ->
             clazz.primaryConstructor?.parameters
                 ?.map { parameter ->
@@ -30,6 +32,7 @@ internal class ChainOfResponsibilityFactory<T : Any>(
                     }
                 }
                 ?.apply {
+                    @Suppress("SpreadOperator")
                     prev = clazz.primaryConstructor?.call(*this.toTypedArray()) as T?
                 }
         }

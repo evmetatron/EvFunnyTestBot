@@ -8,6 +8,7 @@ package com.evmetatron.evfunnytest.config
 import com.evmetatron.evfunnytest.handler.input.CancelCommandHandler
 import com.evmetatron.evfunnytest.handler.input.ExitCommandHandler
 import com.evmetatron.evfunnytest.handler.input.InputHandler
+import com.evmetatron.evfunnytest.handler.input.ListCommandHandler
 import com.evmetatron.evfunnytest.infrastructure.ChainOfResponsibilityFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
@@ -22,6 +23,7 @@ internal class InputHandlerConfig {
     @Bean
     fun inputHandler(): InputHandler? =
         ChainOfResponsibilityFactory<InputHandler>(applicationContext).createChain(
+            ListCommandHandler::class,
             CancelCommandHandler::class,
             ExitCommandHandler::class,
         )

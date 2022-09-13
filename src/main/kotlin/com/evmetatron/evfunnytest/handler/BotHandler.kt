@@ -9,6 +9,7 @@ import com.evmetatron.evfunnytest.data.memory.repository.CurrentTestRepository
 import com.evmetatron.evfunnytest.enumerable.BotCommand
 import com.evmetatron.evfunnytest.handler.input.InputHandler
 import com.evmetatron.evfunnytest.property.MainProperties
+import com.evmetatron.evfunnytest.utils.getChat
 import com.evmetatron.evfunnytest.utils.getUser
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -49,7 +50,15 @@ internal class BotHandler(
 
             when (event) {
                 is SendMessage -> execute(event)
-                else -> logger.error("No publishers for $update")
+                else -> {
+                    logger.error("No publishers for $update")
+                    execute(
+                        SendMessage().apply {
+                            text = "Не удалось обработать запрос"
+                            chatId = update.getChat().id.toString()
+                        }
+                    )
+                }
             }
         } catch (e: TelegramApiException) {
             logger.error(e.stackTraceToString())

@@ -17,7 +17,7 @@ class ExitCommandHandler(
         update: Update,
         currentTestEntity: CurrentTestEntity?,
         botCommand: BotCommand?,
-    ): PartialBotApiMethod<*> {
+    ): PartialBotApiMethod<*>? {
         TODO("Not yet implemented")
     }
 }
