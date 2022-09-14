@@ -11,6 +11,7 @@ class InstanceRedisContainer(
     imageName: String,
 ) : GenericContainer<InstanceRedisContainer>(imageName) {
     companion object {
+        private const val PORT = 6379
         private var instance: GenericContainer<InstanceRedisContainer>? = null
 
         fun getInstance(): GenericContainer<InstanceRedisContainer> =
@@ -18,8 +19,14 @@ class InstanceRedisContainer(
 
         private fun createInstance(): GenericContainer<InstanceRedisContainer> {
             instance = InstanceRedisContainer("redis")
-                .withExposedPorts(6379)
-            (instance as InstanceRedisContainer).start()
+                .withExposedPorts(PORT)
+
+            val redis = instance as InstanceRedisContainer
+
+            redis.start()
+
+            System.setProperty("spring.redis.host", redis.host)
+            System.setProperty("spring.redis.port", redis.getMappedPort(PORT).toString())
 
             return instance as InstanceRedisContainer
         }
