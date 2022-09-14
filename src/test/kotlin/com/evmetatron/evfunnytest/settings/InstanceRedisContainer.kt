@@ -18,6 +18,7 @@ class InstanceRedisContainer(
 
         private fun createInstance(): GenericContainer<InstanceRedisContainer> {
             instance = InstanceRedisContainer("redis")
+                .withExposedPorts(6379)
             (instance as InstanceRedisContainer).start()
 
             return instance as InstanceRedisContainer
