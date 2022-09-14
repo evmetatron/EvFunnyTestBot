@@ -5,68 +5,105 @@
 
 package com.evmetatron.evfunnytest.handler.input
 
-import com.evmetatron.evfunnytest.data.db.repository.TestViewRepository
-import com.evmetatron.evfunnytest.data.memory.entity.CurrentTestEntity
+import com.evmetatron.evfunnytest.dto.GetTestClick
+import com.evmetatron.evfunnytest.dto.PageClick
+import com.evmetatron.evfunnytest.storage.db.repository.TestRepository
+import com.evmetatron.evfunnytest.storage.memory.entity.CurrentTestEntity
 import com.evmetatron.evfunnytest.enumerable.BotCommand
+import com.evmetatron.evfunnytest.enumerable.ButtonType
+import com.evmetatron.evfunnytest.utils.getBotCommand
+import com.evmetatron.evfunnytest.utils.getButtonClick
 import com.evmetatron.evfunnytest.utils.getChat
 import com.evmetatron.evfunnytest.utils.getUser
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup
 import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton
 
 class ListCommandHandler(
-    private val testViewRepository: TestViewRepository,
-    private val inputHandler: InputHandler?,
-) : InputHandler {
-    private companion object {
-        private const val DEFAULT_LIMIT = 15
-        private const val DEFAULT_OFFSET = 0
-        private const val CHUNK = 3
-    }
-
-    override fun execute(
-        update: Update,
-        currentTestEntity: CurrentTestEntity?,
-        botCommand: BotCommand?
-    ): PartialBotApiMethod<*>? {
-        if ((botCommand != BotCommand.START && botCommand != BotCommand.LIST) || currentTestEntity != null) {
-            return inputHandler?.execute(update, currentTestEntity, botCommand)
-        }
-
-        val tests = testViewRepository.findLimited(DEFAULT_LIMIT, DEFAULT_OFFSET)
-
-        return SendMessage().apply {
-            this.text = """
-                Привет ${update.getUser().firstName} ${update.getUser().lastName}
+    private val testRepository: TestRepository,
+    inputHandler: InputHandler?,
+) : AbstractInputHandler(inputHandler) {
+    companion object {
+        const val DEFAULT_LIMIT = 15
+        const val DEFAULT_OFFSET = 0
+        const val DEFAULT_CHUNK = 3
+        const val HELLO_TEXT = """
+                Привет {user}
                 
                 Я бот с забавными тестами.
                 
                 Можешь выбрать любой тест и пройти его
-            """.trimIndent()
-            this.chatId = update.getChat().id.toString()
-            this.replyMarkup = InlineKeyboardMarkup().apply {
-                this.keyboard = tests.chunked(CHUNK)
-                    .map { chunkTests ->
-                        chunkTests.map { test ->
-                            InlineKeyboardButton().apply {
-                                this.text = test.name
-                                this.callbackData = "/get_test ${test.id}"
-                            }
+            """
+    }
+
+    override fun verify(update: Update, currentTestEntity: CurrentTestEntity?): Boolean {
+        val isEmptyCurrentTest = currentTestEntity == null
+        val isListCommand = update.getBotCommand()?.let { it == BotCommand.START || it == BotCommand.LIST } ?: false
+        val isClickPage = update.getButtonClick()?.let { it.type == ButtonType.PAGE } ?: false
+
+        return isEmptyCurrentTest && (isListCommand || isClickPage)
+    }
+
+    override fun handle(update: Update, currentTestEntity: CurrentTestEntity?): PartialBotApiMethod<*> {
+        val pageClick = update.getButtonClick()?.let { PageClick.ofButtonClick(it) }
+
+        val offset = pageClick?.offset ?: DEFAULT_OFFSET
+
+        val tests = testRepository.findLimited(DEFAULT_LIMIT + 1, offset)
+
+        val hasNext = tests.size > DEFAULT_LIMIT
+
+        val text = HELLO_TEXT.replace("{user}", "${update.getUser().firstName} ${update.getUser().lastName}")
+
+        val replyKeyboardMarkup = InlineKeyboardMarkup().apply {
+            this.keyboard = tests.take(DEFAULT_LIMIT).chunked(DEFAULT_CHUNK)
+                .map { chunkTests ->
+                    chunkTests.map { test ->
+                        InlineKeyboardButton().apply {
+                            this.text = test.name
+                            this.callbackData = GetTestClick(
+                                testId = test.id,
+                            ).toButtonClick().toJson()
                         }
-                    } + listOf(
-                    listOf(
-                        InlineKeyboardButton().apply {
-                            this.text = "⏮"
-                            this.callbackData = "/last_tests"
+                    }
+                } + listOf(
+                listOfNotNull(
+                    offset.takeIf { it > 0 }
+                        ?.let {
+                            InlineKeyboardButton().apply {
+                                this.text = "⏮"
+                                this.callbackData = PageClick(
+                                    offset = offset - DEFAULT_LIMIT,
+                                ).toButtonClick().toJson()
+                            }
                         },
-                        InlineKeyboardButton().apply {
-                            this.text = "⏭"
-                            this.callbackData = "/next_tests"
+                    hasNext.takeIf { it }
+                        ?.let {
+                            InlineKeyboardButton().apply {
+                                this.text = "⏭"
+                                this.callbackData = PageClick(
+                                    offset = offset + DEFAULT_LIMIT,
+                                ).toButtonClick().toJson()
+                            }
                         },
-                    ),
-                )
+                ),
+            )
+        }
+
+        return if (pageClick == null) {
+            SendMessage().apply {
+                this.text = text
+                this.chatId = update.getChat().id.toString()
+                this.replyMarkup = replyKeyboardMarkup
+            }
+        } else {
+            EditMessageReplyMarkup().apply {
+                this.chatId = update.getChat().id.toString()
+                this.messageId = update.callbackQuery.message.messageId
+                this.replyMarkup = replyKeyboardMarkup
             }
         }
     }

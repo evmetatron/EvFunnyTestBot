@@ -7,9 +7,7 @@ package com.evmetatron.evfunnytest.enumerable
 
 enum class BotCommand {
     START,
-    LIST,
-    CANCEL,
-    EXIT;
+    LIST;
 
     companion object {
         fun getCommandByInput(input: String): BotCommand? =

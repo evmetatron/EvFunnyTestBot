@@ -24,6 +24,7 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 	implementation("redis.clients:jedis")
 	implementation("org.flywaydb:flyway-core")
+	implementation("com.google.code.gson:gson")
 	implementation("com.github.xabgesagtx:telegram-spring-boot-starter:0.26")
 
 	runtimeOnly("org.postgresql:postgresql")

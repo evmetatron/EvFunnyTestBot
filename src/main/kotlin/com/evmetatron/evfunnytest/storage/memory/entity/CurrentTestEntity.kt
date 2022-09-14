@@ -3,7 +3,7 @@
  * Репозиторий приложения: https://github.com/evmetatron/EvFunnyTestBot
  */
 
-package com.evmetatron.evfunnytest.data.memory.entity
+package com.evmetatron.evfunnytest.storage.memory.entity
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.redis.core.RedisHash

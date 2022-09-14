@@ -5,13 +5,27 @@
 
 package com.evmetatron.evfunnytest.utils
 
+import com.evmetatron.evfunnytest.dto.ButtonClick
+import com.evmetatron.evfunnytest.enumerable.BotCommand
+import com.evmetatron.evfunnytest.exception.TelegramPropertyException
+import com.google.gson.Gson
+import org.telegram.telegrambots.meta.api.objects.Chat
 import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.meta.api.objects.User
 
 fun Update.getUser(): User =
     message?.from
-        ?: callbackQuery.from
+        ?: callbackQuery?.from
+        ?: throw TelegramPropertyException()
 
-fun Update.getChat() =
+fun Update.getChat(): Chat =
     message?.chat
-        ?: callbackQuery.message.chat
+        ?: callbackQuery?.message?.chat
+        ?: throw TelegramPropertyException()
+
+fun Update.getBotCommand(): BotCommand? =
+    message?.text?.let { BotCommand.getCommandByInput(it) }
+
+fun Update.getButtonClick(): ButtonClick? =
+    callbackQuery?.data
+        ?.let { Gson().fromJson(it, ButtonClick::class.java) }

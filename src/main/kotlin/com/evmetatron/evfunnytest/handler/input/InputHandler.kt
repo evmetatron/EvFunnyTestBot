@@ -5,11 +5,10 @@
 
 package com.evmetatron.evfunnytest.handler.input
 
-import com.evmetatron.evfunnytest.data.memory.entity.CurrentTestEntity
-import com.evmetatron.evfunnytest.enumerable.BotCommand
+import com.evmetatron.evfunnytest.storage.memory.entity.CurrentTestEntity
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod
 import org.telegram.telegrambots.meta.api.objects.Update
 
 interface InputHandler {
-    fun execute(update: Update, currentTestEntity: CurrentTestEntity?, botCommand: BotCommand?): PartialBotApiMethod<*>?
+    fun execute(update: Update, currentTestEntity: CurrentTestEntity?): PartialBotApiMethod<*>?
 }

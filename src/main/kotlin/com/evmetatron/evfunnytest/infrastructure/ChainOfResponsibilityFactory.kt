@@ -20,8 +20,6 @@ internal class ChainOfResponsibilityFactory<T : Any>(
             .sortedByDescending { (index, _) -> index }
             .map { (_, kClass) -> kClass }
 
-        val factory = applicationContext.autowireCapableBeanFactory
-
         chainsDescending.forEach { clazz ->
             clazz.primaryConstructor?.parameters
                 ?.map { parameter ->

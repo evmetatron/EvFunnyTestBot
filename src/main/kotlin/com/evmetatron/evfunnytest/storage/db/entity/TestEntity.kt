@@ -3,17 +3,16 @@
  * Репозиторий приложения: https://github.com/evmetatron/EvFunnyTestBot
  */
 
-package com.evmetatron.evfunnytest.data.db.entity
+package com.evmetatron.evfunnytest.storage.db.entity
 
 import com.evmetatron.evfunnytest.enumerable.TestType
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Table
-import java.util.UUID
 
-@Table("test_view")
-data class TestViewEntity(
+@Table("test")
+data class TestEntity(
     @Id
-    val id: UUID,
+    val id: Long,
     val name: String,
     val description: String,
     val type: TestType,

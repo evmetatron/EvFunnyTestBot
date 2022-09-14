@@ -15,8 +15,6 @@ internal class BotCommandTest {
     @CsvSource(
         "/start, START",
         "/list, LIST",
-        "/cancel, CANCEL",
-        "/exit, EXIT",
     )
     fun `get command object`(input: String, expected: BotCommand) {
         BotCommand.getCommandByInput(input) shouldBe expected

@@ -3,18 +3,18 @@
  * Репозиторий приложения: https://github.com/evmetatron/EvFunnyTestBot
  */
 
-package com.evmetatron.evfunnytest.data.db.repository
+package com.evmetatron.evfunnytest.storage.db.repository
 
-import com.evmetatron.evfunnytest.data.db.entity.TestViewEntity
+import com.evmetatron.evfunnytest.storage.db.entity.TestEntity
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.repository.CrudRepository
 import java.util.UUID
 
-interface TestViewRepository : CrudRepository<TestViewEntity, UUID> {
+interface TestRepository : CrudRepository<TestEntity, UUID> {
     @Query(
         """
             select *
-            from test_view
+            from test
             order by id
             limit :limit offset :offset
         """
@@ -22,5 +22,5 @@ interface TestViewRepository : CrudRepository<TestViewEntity, UUID> {
     fun findLimited(
         limit: Int,
         offset: Int,
-    ): List<TestViewEntity>
+    ): List<TestEntity>
 }

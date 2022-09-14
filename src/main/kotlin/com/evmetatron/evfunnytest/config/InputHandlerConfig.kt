@@ -5,8 +5,6 @@
 
 package com.evmetatron.evfunnytest.config
 
-import com.evmetatron.evfunnytest.handler.input.CancelCommandHandler
-import com.evmetatron.evfunnytest.handler.input.ExitCommandHandler
 import com.evmetatron.evfunnytest.handler.input.InputHandler
 import com.evmetatron.evfunnytest.handler.input.ListCommandHandler
 import com.evmetatron.evfunnytest.infrastructure.ChainOfResponsibilityFactory
@@ -24,7 +22,5 @@ internal class InputHandlerConfig {
     fun inputHandler(): InputHandler? =
         ChainOfResponsibilityFactory<InputHandler>(applicationContext).createChain(
             ListCommandHandler::class,
-            CancelCommandHandler::class,
-            ExitCommandHandler::class,
         )
 }
