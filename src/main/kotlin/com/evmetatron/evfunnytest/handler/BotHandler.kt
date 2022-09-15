@@ -8,8 +8,8 @@ package com.evmetatron.evfunnytest.handler
 import com.evmetatron.evfunnytest.storage.memory.repository.CurrentTestRepository
 import com.evmetatron.evfunnytest.handler.input.InputHandler
 import com.evmetatron.evfunnytest.property.MainProperties
-import com.evmetatron.evfunnytest.utils.getChat
 import com.evmetatron.evfunnytest.utils.getUser
+import com.evmetatron.evfunnytest.utils.toSendMessage
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
@@ -47,16 +47,16 @@ internal class BotHandler(
                 is EditMessageReplyMarkup -> execute(event)
                 else -> {
                     logger.error("No publishers for $update")
-                    execute(
-                        SendMessage().apply {
-                            text = "Не удалось обработать запрос"
-                            chatId = update.getChat().id.toString()
-                        }
-                    )
+                    executeErrorMessage(update)
                 }
             }
         } catch (e: TelegramApiException) {
             logger.error(e.stackTraceToString())
+            executeErrorMessage(update)
         }
+    }
+
+    private fun executeErrorMessage(update: Update) {
+        execute(update.toSendMessage("Не удалось обработать запрос"))
     }
 }

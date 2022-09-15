@@ -8,9 +8,8 @@ package com.evmetatron.evfunnytest.storage.db.repository
 import com.evmetatron.evfunnytest.storage.db.entity.TestEntity
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.repository.CrudRepository
-import java.util.UUID
 
-interface TestRepository : CrudRepository<TestEntity, UUID> {
+interface TestRepository : CrudRepository<TestEntity, Long> {
     @Query(
         """
             select *

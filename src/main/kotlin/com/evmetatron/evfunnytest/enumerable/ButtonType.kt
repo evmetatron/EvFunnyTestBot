@@ -8,4 +8,5 @@ package com.evmetatron.evfunnytest.enumerable
 enum class ButtonType {
     PAGE,
     GET_TEST,
+    START_TEST,
 }

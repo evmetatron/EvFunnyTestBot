@@ -5,6 +5,7 @@
 
 package com.evmetatron.evfunnytest.config
 
+import com.evmetatron.evfunnytest.handler.input.GetTestClickHandler
 import com.evmetatron.evfunnytest.handler.input.InputHandler
 import com.evmetatron.evfunnytest.handler.input.ListCommandHandler
 import com.evmetatron.evfunnytest.infrastructure.ChainOfResponsibilityFactory
@@ -22,5 +23,6 @@ internal class ChainConfig {
     fun inputHandler(@Autowired chainFactory: ChainOfResponsibilityFactory): InputHandler? =
         chainFactory.createChain<InputHandler>(
             ListCommandHandler::class,
+            GetTestClickHandler::class,
         )
 }

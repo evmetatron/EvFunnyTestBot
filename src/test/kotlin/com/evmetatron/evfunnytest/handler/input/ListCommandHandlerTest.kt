@@ -83,13 +83,13 @@ internal class ListCommandHandlerTest {
         } returns tests
 
         val expected = SendMessage().apply {
-            text = ListCommandHandler.HELLO_TEXT
+            this.text = ListCommandHandler.HELLO_TEXT
                 .replace(
                     "{user}",
                     "${update.getUser().firstName} ${update.getUser().lastName}",
                 ).trimIndent()
-            chatId = update.getChat().id.toString()
-            replyMarkup = InlineKeyboardMarkup().apply {
+            this.chatId = update.getChat().id.toString()
+            this.replyMarkup = InlineKeyboardMarkup().apply {
                 this.keyboard = tests.take(ListCommandHandler.DEFAULT_LIMIT).chunked(ListCommandHandler.DEFAULT_CHUNK)
                     .map { chunkTests ->
                         chunkTests.map { test ->
@@ -124,7 +124,7 @@ internal class ListCommandHandlerTest {
         val update = createUpdate(
             message = null,
             callbackQuery = createCallbackQuery(
-                data = PageClick(offset = offset).toButtonClick().toJson()
+                data = PageClick(offset = offset).toButtonClick().toJson(),
             ),
         )
 
@@ -138,8 +138,8 @@ internal class ListCommandHandlerTest {
 
         val expected = EditMessageReplyMarkup().apply {
             this.messageId = update.callbackQuery.message.messageId
-            chatId = update.getChat().id.toString()
-            replyMarkup = InlineKeyboardMarkup().apply {
+            this.chatId = update.getChat().id.toString()
+            this.replyMarkup = InlineKeyboardMarkup().apply {
                 this.keyboard = tests.take(ListCommandHandler.DEFAULT_LIMIT).chunked(ListCommandHandler.DEFAULT_CHUNK)
                     .map { chunkTests ->
                         chunkTests.map { test ->
@@ -193,7 +193,7 @@ internal class ListCommandHandlerTest {
                 createUpdate(
                     message = null,
                     callbackQuery = createCallbackQuery(
-                        data = ButtonClick(type = ButtonType.GET_TEST, data = emptyMap()).toJson()
+                        data = ButtonClick(type = ButtonType.GET_TEST, data = emptyMap()).toJson(),
                     )
                 ),
                 null,
