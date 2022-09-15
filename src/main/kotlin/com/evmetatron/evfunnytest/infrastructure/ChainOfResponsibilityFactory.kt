@@ -6,14 +6,14 @@
 package com.evmetatron.evfunnytest.infrastructure
 
 import org.springframework.context.ApplicationContext
+import org.springframework.context.ApplicationContextAware
 import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.jvmErasure
 
-internal class ChainOfResponsibilityFactory<T : Any>(
-    private val applicationContext: ApplicationContext,
-) {
-    inline fun <reified T> createChain(vararg chains: KClass<*>): T? {
+internal class ChainOfResponsibilityFactory : ApplicationContextAware {
+    private lateinit var applicationContext: ApplicationContext
+    inline fun <reified T : Any> createChain(vararg chains: KClass<*>): T? {
         var prev: T? = null
 
         val chainsDescending = chains.mapIndexed { index, kClass -> index to kClass }
@@ -36,5 +36,9 @@ internal class ChainOfResponsibilityFactory<T : Any>(
         }
 
         return prev
+    }
+
+    override fun setApplicationContext(applicationContext: ApplicationContext) {
+        this.applicationContext = applicationContext
     }
 }

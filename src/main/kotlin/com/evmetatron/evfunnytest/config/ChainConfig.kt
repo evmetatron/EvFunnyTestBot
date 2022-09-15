@@ -9,18 +9,18 @@ import com.evmetatron.evfunnytest.handler.input.InputHandler
 import com.evmetatron.evfunnytest.handler.input.ListCommandHandler
 import com.evmetatron.evfunnytest.infrastructure.ChainOfResponsibilityFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-internal class InputHandlerConfig {
-    @Autowired
-    private lateinit var applicationContext: ApplicationContext
+internal class ChainConfig {
+    @Bean
+    fun chainFactory(): ChainOfResponsibilityFactory =
+        ChainOfResponsibilityFactory()
 
     @Bean
-    fun inputHandler(): InputHandler? =
-        ChainOfResponsibilityFactory<InputHandler>(applicationContext).createChain(
+    fun inputHandler(@Autowired chainFactory: ChainOfResponsibilityFactory): InputHandler? =
+        chainFactory.createChain<InputHandler>(
             ListCommandHandler::class,
         )
 }

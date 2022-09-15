@@ -56,7 +56,9 @@ class ListCommandHandler(
 
         val hasNext = tests.size > DEFAULT_LIMIT
 
-        val text = HELLO_TEXT.replace("{user}", "${update.getUser().firstName} ${update.getUser().lastName}")
+        val text = HELLO_TEXT
+            .replace("{user}", "${update.getUser().firstName} ${update.getUser().lastName}")
+            .trimIndent()
 
         val replyKeyboardMarkup = InlineKeyboardMarkup().apply {
             this.keyboard = tests.take(DEFAULT_LIMIT).chunked(DEFAULT_CHUNK)

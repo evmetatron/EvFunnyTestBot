@@ -28,7 +28,7 @@ class InstanceRedisContainer(
             System.setProperty("spring.redis.host", redis.host)
             System.setProperty("spring.redis.port", redis.getMappedPort(PORT).toString())
 
-            return instance as InstanceRedisContainer
+            return redis
         }
     }
 }

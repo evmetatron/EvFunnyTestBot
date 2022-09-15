@@ -87,7 +87,7 @@ internal class ListCommandHandlerTest {
                 .replace(
                     "{user}",
                     "${update.getUser().firstName} ${update.getUser().lastName}",
-                )
+                ).trimIndent()
             chatId = update.getChat().id.toString()
             replyMarkup = InlineKeyboardMarkup().apply {
                 this.keyboard = tests.take(ListCommandHandler.DEFAULT_LIMIT).chunked(ListCommandHandler.DEFAULT_CHUNK)
