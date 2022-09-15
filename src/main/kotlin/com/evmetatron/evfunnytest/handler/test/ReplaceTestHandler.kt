@@ -5,16 +5,14 @@
 
 package com.evmetatron.evfunnytest.handler.test
 
-import com.evmetatron.evfunnytest.storage.memory.entity.CurrentTestEntity
-import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod
-import org.telegram.telegrambots.meta.api.objects.Update
+import com.evmetatron.evfunnytest.enumerable.TestType
+import org.springframework.context.ApplicationEventPublisher
 
-class ReplaceTestHandler : TestHandler {
-    override fun getObject(
-        update: Update,
-        currentTestEntity: CurrentTestEntity,
-        text: String?,
-    ): PartialBotApiMethod<*>? {
+class ReplaceTestHandler(
+    publisher: ApplicationEventPublisher,
+    testHandler: TestHandler?
+) : AbstractTestHandler(publisher, testHandler) {
+    override fun testType(): TestType {
         TODO("Not yet implemented")
     }
 }

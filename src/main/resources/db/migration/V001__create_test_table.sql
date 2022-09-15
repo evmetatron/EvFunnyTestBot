@@ -9,6 +9,7 @@ create table if not exists test
     name           varchar not null,
     description    text    not null,
     type           varchar not null,
+    allow_gender   varchar not null,
     constraint pk_test primary key (id)
 );
 

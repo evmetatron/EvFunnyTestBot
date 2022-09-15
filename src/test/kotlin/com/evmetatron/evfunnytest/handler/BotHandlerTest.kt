@@ -5,30 +5,33 @@
 
 package com.evmetatron.evfunnytest.handler
 
-import com.evmetatron.evfunnytest.dto.event.ClearButtons
+import com.evmetatron.evfunnytest.dto.context.HandlerContext
 import com.evmetatron.evfunnytest.fixtures.createCurrentTestEntity
+import com.evmetatron.evfunnytest.fixtures.createEditButtonsAdapter
 import com.evmetatron.evfunnytest.fixtures.createMainProperties
+import com.evmetatron.evfunnytest.fixtures.createRemoveButtonsEntity
+import com.evmetatron.evfunnytest.fixtures.createSendMessageAdapter
 import com.evmetatron.evfunnytest.fixtures.createUpdate
 import com.evmetatron.evfunnytest.fixtures.faker
 import com.evmetatron.evfunnytest.handler.input.InputHandler
 import com.evmetatron.evfunnytest.property.MainProperties
-import com.evmetatron.evfunnytest.storage.memory.repository.CurrentTestRepository
-import com.evmetatron.evfunnytest.utils.getUser
+import com.evmetatron.evfunnytest.service.CurrentTestService
+import com.evmetatron.evfunnytest.service.RemoveButtonsService
+import com.evmetatron.evfunnytest.utils.toInputAdapter
+import com.evmetatron.evfunnytest.utils.toTelegramMessage
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.SpyK
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.data.repository.findByIdOrNull
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup
 import org.telegram.telegrambots.meta.api.objects.Message
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton
 
 @ExtendWith(MockKExtension::class)
 internal class BotHandlerTest {
@@ -36,7 +39,10 @@ internal class BotHandlerTest {
     private var mainProperties: MainProperties = createMainProperties()
 
     @MockK
-    private lateinit var currentTestRepository: CurrentTestRepository
+    private lateinit var currentTestService: CurrentTestService
+
+    @MockK(relaxed = true)
+    private lateinit var removeButtonsService: RemoveButtonsService
 
     @MockK
     private lateinit var inputHandler: InputHandler
@@ -46,83 +52,110 @@ internal class BotHandlerTest {
     private lateinit var botHandler: BotHandler
 
     @Test
-    fun `success onUpdateReceived - SendMessage`() {
-        val event = SendMessage().apply {
-            this.chatId = faker.number().toString()
-            this.replyToMessageId = faker.number().randomDigit()
-            this.text = faker.harryPotter().quote()
-        }
+    fun `success onUpdateReceived - SendMessage with clear buttons logic`() {
+        val sendMessageAdapter = createSendMessageAdapter(clearButtonsLater = true)
+        val sendMessage = sendMessageAdapter.toTelegramMessage() as SendMessage
 
         val update = createUpdate()
 
-        val currentTest = createCurrentTestEntity()
+        val inputAdapter = update.toInputAdapter()
 
-        val message: Message = mockk()
+        val context = HandlerContext()
 
-        every { botHandler.execute(event) } returns message
+        val currentTest = createCurrentTestEntity(userId = inputAdapter.user.id)
 
-        every { currentTestRepository.findByIdOrNull(update.getUser().id) } returns currentTest
-
-        every { inputHandler.getObject(update, currentTest) } returns event
-
-        botHandler.onUpdateReceived(update)
-
-        verify(exactly = 1) { botHandler.execute(event) }
-    }
-
-    @Test
-    fun `success onUpdateReceived - EditMessageReplyMarkup`() {
-        val event = EditMessageReplyMarkup().apply {
-            this.chatId = faker.number().toString()
-            this.messageId = faker.number().randomDigit()
-            this.replyMarkup = InlineKeyboardMarkup().apply {
-                (1..3).map {
-                    (1..3).map {
-                        InlineKeyboardButton().apply {
-                            this.text = faker.harryPotter().quote()
-                            this.callbackData = faker.harryPotter().book()
-                        }
-                    }
-                }
-            }
+        val message: Message = Message().apply {
+            messageId = faker.number().randomDigit()
         }
 
-        val update = createUpdate()
-
-        val currentTest = createCurrentTestEntity()
-
-        val message: Message = mockk()
-
-        every { botHandler.execute(event) } returns message
-
-        every { currentTestRepository.findByIdOrNull(update.getUser().id) } returns currentTest
-
-        every { inputHandler.getObject(update, currentTest) } returns event
-
-        botHandler.onUpdateReceived(update)
-
-        verify(exactly = 1) { botHandler.execute(event) }
-    }
-
-    @Test
-    fun `success clearButtons`() {
-        val clearButtons = ClearButtons(
-            chatId = 1L,
-            messageId = 4,
+        val removeButtonsEntity = createRemoveButtonsEntity(
+            userId = inputAdapter.user.id,
+            messageIds = listOf(1, 2, 3),
         )
 
-        val expected = EditMessageReplyMarkup().apply {
-            this.chatId = clearButtons.chatId.toString()
-            this.messageId = clearButtons.messageId
-            this.replyMarkup = null
+        every { removeButtonsService.getByUserId(inputAdapter.user.id) } returns removeButtonsEntity
+
+        every { botHandler.execute(sendMessage) } returns message
+
+        every { botHandler.execute(not(sendMessage)) } returns Message()
+
+        every { currentTestService.getCurrentTest(inputAdapter.user.id) } returns currentTest
+
+        every { inputHandler.getObject(inputAdapter, currentTest, context) } returns sendMessageAdapter
+
+        botHandler.onUpdateReceived(update)
+
+        verify(exactly = 1) { botHandler.execute(sendMessage) }
+
+        removeButtonsEntity.messageIds.forEach { messageId ->
+            val editMessage = EditMessageReplyMarkup().apply {
+                this.chatId = removeButtonsEntity.chatId.toString()
+                this.messageId = messageId
+                this.replyMarkup = null
+            }
+            coVerify(exactly = 1) { botHandler.execute(editMessage) }
         }
 
-        val message: Message = mockk()
+        coVerify(exactly = 1) { removeButtonsService.remove(removeButtonsEntity.userId) }
 
-        every { botHandler.execute(expected) } returns message
+        verify(exactly = 1) {
+            removeButtonsService.registerMessage(
+                inputAdapter.user.id,
+                inputAdapter.chatId,
+                message.messageId,
+            )
+        }
+    }
 
-        botHandler.clearButtons(clearButtons)
+    @Test
+    fun `success onUpdateReceived - EditMessageReplyMarkup without clear buttons logic`() {
+        val editButtonsAdapter = createEditButtonsAdapter(clearButtonsLater = false)
+        val editMarkup = editButtonsAdapter.toTelegramMessage() as EditMessageReplyMarkup
 
-        verify(exactly = 1) { botHandler.execute(expected) }
+        val update = createUpdate()
+
+        val inputAdapter = update.toInputAdapter()
+
+        val context = HandlerContext()
+
+        val currentTest = createCurrentTestEntity()
+
+        val message: Message = Message().apply { this.messageId = faker.number().randomDigit() }
+
+        every { removeButtonsService.getByUserId(inputAdapter.user.id) } returns null
+
+        every { botHandler.execute(editMarkup) } returns message
+
+        every { currentTestService.getCurrentTest(inputAdapter.user.id) } returns currentTest
+
+        every { inputHandler.getObject(inputAdapter, currentTest, context) } returns editButtonsAdapter
+
+        botHandler.onUpdateReceived(update)
+
+        verify(exactly = 1) { botHandler.execute(editMarkup) }
+        verify(exactly = 1) { botHandler.execute(any<EditMessageReplyMarkup>()) }
+    }
+
+    @Test
+    fun `success clearButtonsSchedule`() {
+        val expiredClearButtons = listOf(
+            createRemoveButtonsEntity(userId = 1, chatId = 1, messageIds = listOf(1, 2, 3)),
+            createRemoveButtonsEntity(userId = 2, chatId = 2, messageIds = listOf(1, 2, 3)),
+        )
+
+        coEvery { removeButtonsService.findExpired() } returns expiredClearButtons
+
+        botHandler.clearButtonsSchedule()
+
+        expiredClearButtons.forEach { removeButtons ->
+            removeButtons.messageIds.forEach { messageId ->
+                val editMessage = EditMessageReplyMarkup().apply {
+                    this.chatId = removeButtons.chatId.toString()
+                    this.messageId = messageId
+                    this.replyMarkup = null
+                }
+                coVerify(exactly = 1) { botHandler.execute(editMessage) }
+            }
+        }
     }
 }

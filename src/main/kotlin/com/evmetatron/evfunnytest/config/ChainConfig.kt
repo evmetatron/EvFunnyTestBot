@@ -5,6 +5,7 @@
 
 package com.evmetatron.evfunnytest.config
 
+import com.evmetatron.evfunnytest.handler.input.SendAddGenderHandler
 import com.evmetatron.evfunnytest.handler.input.GetTestClickHandler
 import com.evmetatron.evfunnytest.handler.input.InputHandler
 import com.evmetatron.evfunnytest.handler.input.ListCommandHandler
@@ -28,6 +29,7 @@ internal class ChainConfig {
             ListCommandHandler::class,
             GetTestClickHandler::class,
             StartTestClickHandler::class,
+            SendAddGenderHandler::class,
         )
 
     @Bean
