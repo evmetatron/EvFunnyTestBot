@@ -5,9 +5,9 @@
 
 package com.evmetatron.evfunnytest.handler.input
 
-import com.evmetatron.evfunnytest.dto.ButtonClick
-import com.evmetatron.evfunnytest.dto.GetTestClick
-import com.evmetatron.evfunnytest.dto.PageClick
+import com.evmetatron.evfunnytest.dto.button.ButtonClick
+import com.evmetatron.evfunnytest.dto.button.GetTestClick
+import com.evmetatron.evfunnytest.dto.button.PageClick
 import com.evmetatron.evfunnytest.enumerable.ButtonType
 import com.evmetatron.evfunnytest.fixtures.faker
 import com.evmetatron.evfunnytest.fixtures.createUpdate
@@ -57,16 +57,16 @@ internal class ListCommandHandlerTest {
             text = faker.harryPotter().quote()
         }
 
-        every { inputHandler.execute(update, currentTestEntity) } returns sendMessage
+        every { inputHandler.getObject(update, currentTestEntity) } returns sendMessage
 
-        listCommandHandler.execute(update, currentTestEntity) shouldBe sendMessage
+        listCommandHandler.getObject(update, currentTestEntity) shouldBe sendMessage
 
-        verify(exactly = 1) { inputHandler.execute(update, currentTestEntity) }
+        verify(exactly = 1) { inputHandler.getObject(update, currentTestEntity) }
     }
 
     @ParameterizedTest
     @ValueSource(strings = ["/start", "/list"])
-    fun `success execute - SendMessage`(command: String) {
+    fun `success getObject - SendMessage`(command: String) {
         val update = createUpdate(
             message = createMessage(
                 text = command,
@@ -113,13 +113,13 @@ internal class ListCommandHandlerTest {
             }
         }
 
-        listCommandHandler.execute(update, currentTestEntity) shouldBe expected
+        listCommandHandler.getObject(update, currentTestEntity) shouldBe expected
 
-        verify(exactly = 0) { inputHandler.execute(update, currentTestEntity) }
+        verify(exactly = 0) { inputHandler.getObject(update, currentTestEntity) }
     }
 
     @Test
-    fun `success execute - EditMessageReplyMarkup`() {
+    fun `success getObject - EditMessageReplyMarkup`() {
         val offset = 15
         val update = createUpdate(
             message = null,
@@ -169,9 +169,9 @@ internal class ListCommandHandlerTest {
             }
         }
 
-        listCommandHandler.execute(update, currentTestEntity) shouldBe expected
+        listCommandHandler.getObject(update, currentTestEntity) shouldBe expected
 
-        verify(exactly = 0) { inputHandler.execute(update, currentTestEntity) }
+        verify(exactly = 0) { inputHandler.getObject(update, currentTestEntity) }
     }
 
     private fun verifyFalseProvider() =

@@ -5,6 +5,8 @@
 
 package com.evmetatron.evfunnytest.handler
 
+import com.evmetatron.evfunnytest.dto.event.ClearButtons
+import com.evmetatron.evfunnytest.exception.InternalLogicException
 import com.evmetatron.evfunnytest.storage.memory.repository.CurrentTestRepository
 import com.evmetatron.evfunnytest.handler.input.InputHandler
 import com.evmetatron.evfunnytest.property.MainProperties
@@ -12,6 +14,7 @@ import com.evmetatron.evfunnytest.utils.getUser
 import com.evmetatron.evfunnytest.utils.toSendMessage
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.context.event.EventListener
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import org.telegram.telegrambots.bots.TelegramLongPollingBot
@@ -40,7 +43,7 @@ internal class BotHandler(
         val currentTest = currentTestRepository.findByIdOrNull(update.getUser().id)
 
         try {
-            val event = inputHandler?.execute(update, currentTest)
+            val event = inputHandler?.getObject(update, currentTest)
 
             when (event) {
                 is SendMessage -> execute(event)
@@ -51,9 +54,23 @@ internal class BotHandler(
                 }
             }
         } catch (e: TelegramApiException) {
-            logger.error(e.stackTraceToString())
+            logger.error("Telegram api error ${e.stackTraceToString()}")
+            executeErrorMessage(update)
+        } catch (e: InternalLogicException) {
+            logger.error("Internal logic error ${e.stackTraceToString()}")
             executeErrorMessage(update)
         }
+    }
+
+    @EventListener
+    fun clearButtons(clearButtons: ClearButtons) {
+        execute(
+            EditMessageReplyMarkup().apply {
+                this.chatId = clearButtons.chatId.toString()
+                this.messageId = clearButtons.messageId
+                this.replyMarkup = null
+            }
+        )
     }
 
     private fun executeErrorMessage(update: Update) {

@@ -5,6 +5,7 @@
 
 package com.evmetatron.evfunnytest.handler
 
+import com.evmetatron.evfunnytest.dto.event.ClearButtons
 import com.evmetatron.evfunnytest.fixtures.createCurrentTestEntity
 import com.evmetatron.evfunnytest.fixtures.createMainProperties
 import com.evmetatron.evfunnytest.fixtures.createUpdate
@@ -62,7 +63,7 @@ internal class BotHandlerTest {
 
         every { currentTestRepository.findByIdOrNull(update.getUser().id) } returns currentTest
 
-        every { inputHandler.execute(update, currentTest) } returns event
+        every { inputHandler.getObject(update, currentTest) } returns event
 
         botHandler.onUpdateReceived(update)
 
@@ -96,10 +97,32 @@ internal class BotHandlerTest {
 
         every { currentTestRepository.findByIdOrNull(update.getUser().id) } returns currentTest
 
-        every { inputHandler.execute(update, currentTest) } returns event
+        every { inputHandler.getObject(update, currentTest) } returns event
 
         botHandler.onUpdateReceived(update)
 
         verify(exactly = 1) { botHandler.execute(event) }
+    }
+
+    @Test
+    fun `success clearButtons`() {
+        val clearButtons = ClearButtons(
+            chatId = 1L,
+            messageId = 4,
+        )
+
+        val expected = EditMessageReplyMarkup().apply {
+            this.chatId = clearButtons.chatId.toString()
+            this.messageId = clearButtons.messageId
+            this.replyMarkup = null
+        }
+
+        val message: Message = mockk()
+
+        every { botHandler.execute(expected) } returns message
+
+        botHandler.clearButtons(clearButtons)
+
+        verify(exactly = 1) { botHandler.execute(expected) }
     }
 }

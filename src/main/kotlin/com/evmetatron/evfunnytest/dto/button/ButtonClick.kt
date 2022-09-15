@@ -3,7 +3,7 @@
  * Репозиторий приложения: https://github.com/evmetatron/EvFunnyTestBot
  */
 
-package com.evmetatron.evfunnytest.dto
+package com.evmetatron.evfunnytest.dto.button
 
 import com.evmetatron.evfunnytest.enumerable.ButtonType
 import com.google.gson.Gson

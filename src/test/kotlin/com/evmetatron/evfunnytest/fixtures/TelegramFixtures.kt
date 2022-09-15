@@ -53,12 +53,12 @@ fun createUser(
     }
 
 fun createChat(
-    chatId: Long = faker.number().randomNumber(),
+    id: Long = faker.number().randomNumber(),
     title: String = faker.harryPotter().character(),
     type: String = listOf("private", "group", "channel", "supergroup").random(),
 ) =
     Chat().apply {
-        this.id = chatId
+        this.id = id
         this.title = title
         this.type = type
     }

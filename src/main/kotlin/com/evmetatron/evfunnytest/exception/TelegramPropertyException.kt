@@ -5,4 +5,4 @@
 
 package com.evmetatron.evfunnytest.exception
 
-class TelegramPropertyException : RuntimeException("Не удалось использовать свойства для получения объекта")
+class TelegramPropertyException : InternalLogicException("Не удалось использовать свойства для получения объекта")

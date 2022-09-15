@@ -8,6 +8,7 @@ package com.evmetatron.evfunnytest.infrastructure
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
 import kotlin.reflect.KClass
+import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.jvmErasure
 
@@ -25,6 +26,8 @@ internal class ChainOfResponsibilityFactory : ApplicationContextAware {
                 ?.map { parameter ->
                     if (parameter.type.jvmErasure.java == T::class.java) {
                         prev
+                    } else if (applicationContext::class.isSubclassOf(parameter.type.jvmErasure)) {
+                        applicationContext
                     } else {
                         applicationContext.autowireCapableBeanFactory.getBean(parameter.type.jvmErasure.java)
                     }

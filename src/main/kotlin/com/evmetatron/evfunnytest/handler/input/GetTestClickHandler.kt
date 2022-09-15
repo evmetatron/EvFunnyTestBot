@@ -5,8 +5,8 @@
 
 package com.evmetatron.evfunnytest.handler.input
 
-import com.evmetatron.evfunnytest.dto.GetTestClick
-import com.evmetatron.evfunnytest.dto.StartTestClick
+import com.evmetatron.evfunnytest.dto.button.GetTestClick
+import com.evmetatron.evfunnytest.dto.button.StartTestClick
 import com.evmetatron.evfunnytest.enumerable.ButtonType
 import com.evmetatron.evfunnytest.storage.db.repository.TestRepository
 import com.evmetatron.evfunnytest.storage.memory.entity.CurrentTestEntity

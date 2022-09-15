@@ -7,6 +7,7 @@ package com.evmetatron.evfunnytest.fixtures
 
 import com.evmetatron.evfunnytest.enumerable.TestType
 import com.evmetatron.evfunnytest.storage.db.entity.TestEntity
+import com.evmetatron.evfunnytest.storage.memory.entity.CurrentAnswerEntity
 import com.evmetatron.evfunnytest.storage.memory.entity.CurrentTestEntity
 
 fun testEntity5(): TestEntity =
@@ -35,9 +36,15 @@ fun testEntity7(): TestEntity =
 
 fun createCurrentTestEntity(
     userId: Long = faker.number().randomNumber(),
+    testId: Long = faker.number().randomNumber(),
+    type: TestType = rndEnum(),
+    answers: List<CurrentAnswerEntity> = (1..3).map { createCurrentAnswerEntity() },
 ): CurrentTestEntity =
     CurrentTestEntity(
         userId = userId,
+        testId = testId,
+        type = type,
+        answers = answers,
     )
 
 fun createTestEntity(
@@ -51,4 +58,13 @@ fun createTestEntity(
         name = name,
         description = description,
         type = type,
+    )
+
+fun createCurrentAnswerEntity(
+    num: Int = faker.number().randomDigit(),
+    answer: String = faker.harryPotter().quote(),
+): CurrentAnswerEntity =
+    CurrentAnswerEntity(
+        num = num,
+        answer = answer,
     )

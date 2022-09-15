@@ -3,7 +3,12 @@
  * Репозиторий приложения: https://github.com/evmetatron/EvFunnyTestBot
  */
 
-package com.evmetatron.evfunnytest.dto
+/*
+ * Код написан разработчиком evmetatron (artem.nagibin.89@ya.ru)
+ * Репозиторий приложения: https://github.com/evmetatron/EvFunnyTestBot
+ */
+
+package com.evmetatron.evfunnytest.dto.button
 
 import com.evmetatron.evfunnytest.enumerable.ButtonType
 import com.evmetatron.evfunnytest.exception.ConvertToDataException

@@ -5,5 +5,4 @@
 
 package com.evmetatron.evfunnytest.exception
 
-class ConvertToDataException(className: String, data: Any) :
-    InternalLogicException("Не удалось создать объект $className из $data")
+class TestHandlerNotFoundException : InternalLogicException("Обработчик тестов не найден")

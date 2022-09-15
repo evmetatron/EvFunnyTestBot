@@ -6,17 +6,20 @@
 package com.evmetatron.evfunnytest.handler.input
 
 import com.evmetatron.evfunnytest.dto.button.ButtonClick
-import com.evmetatron.evfunnytest.dto.button.GetTestClick
 import com.evmetatron.evfunnytest.dto.button.StartTestClick
+import com.evmetatron.evfunnytest.dto.event.ClearButtons
 import com.evmetatron.evfunnytest.enumerable.ButtonType
 import com.evmetatron.evfunnytest.fixtures.createCallbackQuery
 import com.evmetatron.evfunnytest.fixtures.createCurrentTestEntity
 import com.evmetatron.evfunnytest.fixtures.createTestEntity
 import com.evmetatron.evfunnytest.fixtures.createUpdate
 import com.evmetatron.evfunnytest.fixtures.faker
+import com.evmetatron.evfunnytest.handler.test.TestHandler
 import com.evmetatron.evfunnytest.storage.db.repository.TestRepository
 import com.evmetatron.evfunnytest.storage.memory.entity.CurrentTestEntity
+import com.evmetatron.evfunnytest.storage.memory.repository.CurrentTestRepository
 import com.evmetatron.evfunnytest.utils.getChat
+import com.evmetatron.evfunnytest.utils.getUser
 import com.evmetatron.evfunnytest.utils.toSendMessage
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -30,25 +33,31 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.repository.findByIdOrNull
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
-import org.telegram.telegrambots.meta.api.objects.EntityType
-import org.telegram.telegrambots.meta.api.objects.MessageEntity
 import org.telegram.telegrambots.meta.api.objects.Update
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
-internal class GetTestClickHandlerTest {
+internal class StartTestClickHandlerTest {
     @MockK
     private lateinit var testRepository: TestRepository
+
+    @MockK
+    private lateinit var currentTestRepository: CurrentTestRepository
+
+    @MockK
+    private lateinit var testHandler: TestHandler
+
+    @MockK(relaxed = true)
+    private lateinit var publisher: ApplicationEventPublisher
 
     @MockK
     private lateinit var inputHandler: InputHandler
 
     @InjectMockKs
-    private lateinit var getTestClickHandler: GetTestClickHandler
+    private lateinit var startTestClickHandler: StartTestClickHandler
 
     @ParameterizedTest
     @MethodSource("verifyFalseProvider")
@@ -59,7 +68,7 @@ internal class GetTestClickHandlerTest {
 
         every { inputHandler.getObject(update, currentTestEntity) } returns sendMessage
 
-        getTestClickHandler.getObject(update, currentTestEntity) shouldBe sendMessage
+        startTestClickHandler.getObject(update, currentTestEntity) shouldBe sendMessage
 
         verify(exactly = 1) { inputHandler.getObject(update, currentTestEntity) }
     }
@@ -70,53 +79,43 @@ internal class GetTestClickHandlerTest {
         val update = createUpdate(
             message = null,
             callbackQuery = createCallbackQuery(
-                data = GetTestClick(testId = testId).toButtonClick().toJson(),
+                data = StartTestClick(testId = testId).toButtonClick().toJson(),
             ),
         )
-        val test = createTestEntity()
+        val test = createTestEntity(id = testId)
+
+        val additionalText = StartTestClickHandler.ADDITIONAL_TEXT.replace("{test}", test.name)
 
         val currentTestEntity = null
+
+        val currentTest = createCurrentTestEntity(
+            userId = update.getUser().id,
+            testId = testId,
+            type = test.type,
+            answers = emptyList(),
+        )
+
+        val clearButtons = ClearButtons(
+            chatId = update.getChat().id,
+            messageId = update.callbackQuery.message.messageId,
+        )
 
         every {
             testRepository.findByIdOrNull(testId)
         } returns test
 
-        val text = "${test.name}\n\n${test.description}"
-
         val expected = SendMessage().apply {
-            this.text = text
-            this.chatId = update.getChat().id.toString()
-            this.entities = listOf(
-                MessageEntity().apply {
-                    this.type = EntityType.BOLD
-                    this.text = test.name
-                    this.offset = 0
-                    this.length = test.name.length
-                },
-                MessageEntity().apply {
-                    this.type = EntityType.ITALIC
-                    this.text = test.description
-                    this.offset = text.length - test.description.length
-                    this.length = test.description.length
-                },
-            )
-            this.replyMarkup = InlineKeyboardMarkup().apply {
-                this.keyboard = listOf(
-                    listOf(
-                        InlineKeyboardButton().apply {
-                            this.text = GetTestClickHandler.BUTTON_TEXT
-                            this.callbackData = StartTestClick(
-                                testId = test.id,
-                            ).toButtonClick().toJson()
-                        }
-                    ),
-                )
-            }
+            this.text = faker.harryPotter().quote()
         }
 
-        getTestClickHandler.getObject(update, currentTestEntity) shouldBe expected
+        every { testHandler.getObject(update, currentTest, additionalText) } returns expected
+        every { currentTestRepository.save(currentTest) } returns currentTest
+
+        startTestClickHandler.getObject(update, currentTestEntity) shouldBe expected
 
         verify(exactly = 0) { inputHandler.getObject(update, currentTestEntity) }
+        verify(exactly = 1) { currentTestRepository.save(currentTest) }
+        verify(exactly = 1) { publisher.publishEvent(clearButtons) }
     }
 
     @Test
@@ -125,7 +124,7 @@ internal class GetTestClickHandlerTest {
         val update = createUpdate(
             message = null,
             callbackQuery = createCallbackQuery(
-                data = GetTestClick(testId = testId).toButtonClick().toJson(),
+                data = StartTestClick(testId = testId).toButtonClick().toJson(),
             ),
         )
 
@@ -137,7 +136,7 @@ internal class GetTestClickHandlerTest {
 
         val expected = update.toSendMessage(GetTestClickHandler.TEST_NOT_FOUND)
 
-        getTestClickHandler.getObject(update, currentTestEntity) shouldBe expected
+        startTestClickHandler.getObject(update, currentTestEntity) shouldBe expected
 
         verify(exactly = 0) { inputHandler.getObject(update, currentTestEntity) }
     }
@@ -149,12 +148,12 @@ internal class GetTestClickHandlerTest {
                 createUpdate(
                     message = null,
                     callbackQuery = createCallbackQuery(
-                        data = ButtonClick(type = ButtonType.GET_TEST, data = emptyMap()).toJson(),
+                        data = ButtonClick(type = ButtonType.START_TEST, data = emptyMap()).toJson(),
                     ),
                 ),
                 createCurrentTestEntity(),
             ),
-            // Клик на кнопку не соответствует событию просмотра теста
+            // Клик на кнопку не соответствует событию начала теста
             Arguments.of(
                 createUpdate(
                     message = null,

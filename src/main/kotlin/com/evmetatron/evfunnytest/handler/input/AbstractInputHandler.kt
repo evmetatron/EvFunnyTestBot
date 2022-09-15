@@ -12,13 +12,13 @@ import org.telegram.telegrambots.meta.api.objects.Update
 abstract class AbstractInputHandler(
     private val inputHandler: InputHandler?,
 ) : InputHandler {
-    override fun execute(
+    override fun getObject(
         update: Update,
         currentTestEntity: CurrentTestEntity?,
     ): PartialBotApiMethod<*>? =
         verify(update, currentTestEntity).takeIf { it }
             ?.let { handle(update, currentTestEntity) }
-            ?: inputHandler?.execute(update, currentTestEntity)
+            ?: inputHandler?.getObject(update, currentTestEntity)
 
     protected abstract fun verify(
         update: Update,

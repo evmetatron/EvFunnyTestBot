@@ -5,7 +5,7 @@
 
 package com.evmetatron.evfunnytest.utils
 
-import com.evmetatron.evfunnytest.dto.ButtonClick
+import com.evmetatron.evfunnytest.dto.button.ButtonClick
 import com.evmetatron.evfunnytest.enumerable.BotCommand
 import com.evmetatron.evfunnytest.exception.TelegramPropertyException
 import com.google.gson.Gson
