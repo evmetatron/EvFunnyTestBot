@@ -46,10 +46,14 @@ fun createMessage(
 fun createUser(
     id: Long = faker.number().randomNumber(),
     userName: String = faker.name().username(),
+    firstName: String = faker.name().firstName(),
+    lastName: String = faker.name().lastName(),
 ) =
     User().apply {
         this.id = id
         this.userName = userName
+        this.firstName = firstName
+        this.lastName = lastName
     }
 
 fun createChat(
@@ -81,7 +85,7 @@ fun createChatMemberLeft() =
     ChatMemberLeft()
 
 fun createCallbackQuery(
-    data: String = faker.harryPotter().book(),
+    data: String = createBaseButton().toJson(),
     message: Message? = createMessage(),
     from: User = createUser(),
 ): CallbackQuery =

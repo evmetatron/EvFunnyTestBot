@@ -5,10 +5,15 @@
 
 package com.evmetatron.evfunnytest.handler.input
 
+import com.evmetatron.evfunnytest.dto.adapter.InputAdapter
+import com.evmetatron.evfunnytest.dto.adapter.MessageAdapter
+import com.evmetatron.evfunnytest.dto.context.HandlerContext
 import com.evmetatron.evfunnytest.storage.memory.entity.CurrentTestEntity
-import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod
-import org.telegram.telegrambots.meta.api.objects.Update
 
 interface InputHandler {
-    fun getObject(update: Update, currentTestEntity: CurrentTestEntity?): PartialBotApiMethod<*>?
+    fun getObject(
+        inputAdapter: InputAdapter,
+        currentTestEntity: CurrentTestEntity?,
+        context: HandlerContext,
+    ): MessageAdapter?
 }

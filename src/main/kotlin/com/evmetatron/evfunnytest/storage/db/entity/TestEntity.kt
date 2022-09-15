@@ -5,6 +5,7 @@
 
 package com.evmetatron.evfunnytest.storage.db.entity
 
+import com.evmetatron.evfunnytest.enumerable.AllowGender
 import com.evmetatron.evfunnytest.enumerable.TestType
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Table
@@ -16,4 +17,5 @@ data class TestEntity(
     val name: String,
     val description: String,
     val type: TestType,
+    val allowGender: AllowGender,
 )

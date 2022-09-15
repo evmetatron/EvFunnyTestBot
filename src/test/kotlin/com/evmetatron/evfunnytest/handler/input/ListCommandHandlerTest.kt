@@ -5,20 +5,22 @@
 
 package com.evmetatron.evfunnytest.handler.input
 
-import com.evmetatron.evfunnytest.dto.button.ButtonClick
-import com.evmetatron.evfunnytest.dto.button.GetTestClick
-import com.evmetatron.evfunnytest.dto.button.PageClick
+import com.evmetatron.evfunnytest.dto.adapter.ButtonAdapter
+import com.evmetatron.evfunnytest.dto.adapter.InputAdapter
+import com.evmetatron.evfunnytest.dto.adapter.textselection.DefaultSelection
+import com.evmetatron.evfunnytest.dto.button.GetTestButton
+import com.evmetatron.evfunnytest.dto.button.PageButton
+import com.evmetatron.evfunnytest.dto.context.HandlerContext
+import com.evmetatron.evfunnytest.enumerable.BotCommand
 import com.evmetatron.evfunnytest.enumerable.ButtonType
-import com.evmetatron.evfunnytest.fixtures.faker
-import com.evmetatron.evfunnytest.fixtures.createUpdate
-import com.evmetatron.evfunnytest.fixtures.createMessage
+import com.evmetatron.evfunnytest.fixtures.createBaseButton
 import com.evmetatron.evfunnytest.fixtures.createTestEntity
-import com.evmetatron.evfunnytest.fixtures.createCallbackQuery
 import com.evmetatron.evfunnytest.fixtures.createCurrentTestEntity
-import com.evmetatron.evfunnytest.storage.db.repository.TestRepository
+import com.evmetatron.evfunnytest.fixtures.createEditButtonsAdapter
+import com.evmetatron.evfunnytest.fixtures.createInputAdapter
+import com.evmetatron.evfunnytest.fixtures.createSendMessageAdapter
+import com.evmetatron.evfunnytest.service.TestService
 import com.evmetatron.evfunnytest.storage.memory.entity.CurrentTestEntity
-import com.evmetatron.evfunnytest.utils.getChat
-import com.evmetatron.evfunnytest.utils.getUser
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
@@ -30,19 +32,14 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.EnumSource
 import org.junit.jupiter.params.provider.MethodSource
-import org.junit.jupiter.params.provider.ValueSource
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup
-import org.telegram.telegrambots.meta.api.objects.Update
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
 internal class ListCommandHandlerTest {
     @MockK
-    private lateinit var testRepository: TestRepository
+    private lateinit var testService: TestService
 
     @MockK
     private lateinit var inputHandler: InputHandler
@@ -52,149 +49,139 @@ internal class ListCommandHandlerTest {
 
     @ParameterizedTest
     @MethodSource("verifyFalseProvider")
-    fun `verify false`(update: Update, currentTestEntity: CurrentTestEntity?) {
-        val sendMessage = SendMessage().apply {
-            text = faker.harryPotter().quote()
-        }
+    fun `verify false`(inputAdapter: InputAdapter, currentTestEntity: CurrentTestEntity?) {
+        val sendMessage = createSendMessageAdapter()
+        val context = HandlerContext()
 
-        every { inputHandler.getObject(update, currentTestEntity) } returns sendMessage
+        every { inputHandler.getObject(inputAdapter, currentTestEntity, context) } returns sendMessage
 
-        listCommandHandler.getObject(update, currentTestEntity) shouldBe sendMessage
+        listCommandHandler.getObject(inputAdapter, currentTestEntity, context) shouldBe sendMessage
 
-        verify(exactly = 1) { inputHandler.getObject(update, currentTestEntity) }
+        verify(exactly = 1) { inputHandler.getObject(inputAdapter, currentTestEntity, context) }
     }
 
     @ParameterizedTest
-    @ValueSource(strings = ["/start", "/list"])
-    fun `success getObject - SendMessage`(command: String) {
-        val update = createUpdate(
-            message = createMessage(
-                text = command,
-            ),
-            callbackQuery = null,
+    @EnumSource(BotCommand::class, names = ["START", "LIST"])
+    fun `success getObject - SendMessage`(command: BotCommand) {
+        val inputAdapter = createInputAdapter(
+            command = command,
+            button = null,
         )
+        val context = HandlerContext()
 
         val currentTestEntity = null
 
         val tests = (1..ListCommandHandler.DEFAULT_LIMIT + 1).map { createTestEntity() }
 
         every {
-            testRepository.findLimited(ListCommandHandler.DEFAULT_LIMIT + 1, ListCommandHandler.DEFAULT_OFFSET)
+            testService.findTests(ListCommandHandler.DEFAULT_LIMIT + 1, ListCommandHandler.DEFAULT_OFFSET)
         } returns tests
 
-        val expected = SendMessage().apply {
-            this.text = ListCommandHandler.HELLO_TEXT
-                .replace(
-                    "{user}",
-                    "${update.getUser().firstName} ${update.getUser().lastName}",
-                ).trimIndent()
-            this.chatId = update.getChat().id.toString()
-            this.replyMarkup = InlineKeyboardMarkup().apply {
-                this.keyboard = tests.take(ListCommandHandler.DEFAULT_LIMIT).chunked(ListCommandHandler.DEFAULT_CHUNK)
-                    .map { chunkTests ->
-                        chunkTests.map { test ->
-                            InlineKeyboardButton().apply {
-                                this.text = test.name
-                                this.callbackData = GetTestClick(
-                                    testId = test.id,
-                                ).toButtonClick().toJson()
-                            }
-                        }
-                    } + listOf(
-                    listOf(
-                        InlineKeyboardButton().apply {
-                            this.text = "⏭"
-                            this.callbackData = PageClick(
-                                offset = ListCommandHandler.DEFAULT_LIMIT,
-                            ).toButtonClick().toJson()
-                        },
-                    ),
+        val expected = createSendMessageAdapter(
+            chatId = inputAdapter.chatId,
+            text = listOf(
+                DefaultSelection(
+                    text = ListCommandHandler.HELLO_TEXT.replace(
+                        "{user}",
+                        "${inputAdapter.user.firstName} ${inputAdapter.user.lastName}"
+                    ).trimIndent()
                 )
-            }
-        }
+            ),
+            buttons = tests.take(ListCommandHandler.DEFAULT_LIMIT).chunked(ListCommandHandler.DEFAULT_CHUNK)
+                .map { chunkTests ->
+                    chunkTests.map { test ->
+                        ButtonAdapter(
+                            text = test.name,
+                            button = GetTestButton(testId = test.id).toBaseButton(),
+                        )
+                    }
+                } + listOf(
+                listOf(
+                    ButtonAdapter(
+                        text = "⏭",
+                        button = PageButton(offset = ListCommandHandler.DEFAULT_LIMIT).toBaseButton(),
+                    ),
+                ),
+            ),
+        )
 
-        listCommandHandler.getObject(update, currentTestEntity) shouldBe expected
+        listCommandHandler.getObject(inputAdapter, currentTestEntity, context) shouldBe expected
 
-        verify(exactly = 0) { inputHandler.getObject(update, currentTestEntity) }
+        verify(exactly = 0) { inputHandler.getObject(inputAdapter, currentTestEntity, context) }
     }
 
     @Test
     fun `success getObject - EditMessageReplyMarkup`() {
         val offset = 15
-        val update = createUpdate(
-            message = null,
-            callbackQuery = createCallbackQuery(
-                data = PageClick(offset = offset).toButtonClick().toJson(),
-            ),
+        val inputAdapter = createInputAdapter(
+            command = null,
+            button = PageButton(offset = offset).toBaseButton(),
         )
+        val context = HandlerContext()
 
         val currentTestEntity = null
 
         val tests = (1..ListCommandHandler.DEFAULT_LIMIT + 1).map { createTestEntity() }
 
         every {
-            testRepository.findLimited(ListCommandHandler.DEFAULT_LIMIT + 1, offset)
+            testService.findTests(ListCommandHandler.DEFAULT_LIMIT + 1, offset)
         } returns tests
 
-        val expected = EditMessageReplyMarkup().apply {
-            this.messageId = update.callbackQuery.message.messageId
-            this.chatId = update.getChat().id.toString()
-            this.replyMarkup = InlineKeyboardMarkup().apply {
-                this.keyboard = tests.take(ListCommandHandler.DEFAULT_LIMIT).chunked(ListCommandHandler.DEFAULT_CHUNK)
-                    .map { chunkTests ->
-                        chunkTests.map { test ->
-                            InlineKeyboardButton().apply {
-                                this.text = test.name
-                                this.callbackData = GetTestClick(
-                                    testId = test.id,
-                                ).toButtonClick().toJson()
-                            }
-                        }
-                    } + listOf(
-                    listOf(
-                        InlineKeyboardButton().apply {
-                            this.text = "⏮"
-                            this.callbackData = PageClick(
-                                offset = offset - ListCommandHandler.DEFAULT_LIMIT,
-                            ).toButtonClick().toJson()
-                        },
-                        InlineKeyboardButton().apply {
-                            this.text = "⏭"
-                            this.callbackData = PageClick(
-                                offset = offset + ListCommandHandler.DEFAULT_LIMIT,
-                            ).toButtonClick().toJson()
-                        },
+        val expected = createEditButtonsAdapter(
+            messageId = inputAdapter.messageId,
+            chatId = inputAdapter.chatId,
+            buttons = tests.take(ListCommandHandler.DEFAULT_LIMIT).chunked(ListCommandHandler.DEFAULT_CHUNK)
+                .map { chunkTests ->
+                    chunkTests.map { test ->
+                        ButtonAdapter(
+                            text = test.name,
+                            button = GetTestButton(testId = test.id).toBaseButton(),
+                        )
+                    }
+                } + listOf(
+                listOf(
+                    ButtonAdapter(
+                        text = "⏮",
+                        button = PageButton(offset = offset - ListCommandHandler.DEFAULT_LIMIT).toBaseButton(),
                     ),
-                )
-            }
-        }
+                    ButtonAdapter(
+                        text = "⏭",
+                        button = PageButton(offset = offset + ListCommandHandler.DEFAULT_LIMIT).toBaseButton(),
+                    ),
+                ),
+            ),
+        )
 
-        listCommandHandler.getObject(update, currentTestEntity) shouldBe expected
+        listCommandHandler.getObject(inputAdapter, currentTestEntity, context) shouldBe expected
 
-        verify(exactly = 0) { inputHandler.getObject(update, currentTestEntity) }
+        verify(exactly = 0) { inputHandler.getObject(inputAdapter, currentTestEntity, context) }
     }
 
     private fun verifyFalseProvider() =
         listOf(
             // Существует CurrentTestEntity
             Arguments.of(
-                createUpdate(message = createMessage(text = "/list"), callbackQuery = null),
+                createInputAdapter(
+                    command = BotCommand.LIST,
+                    button = null,
+                ),
                 createCurrentTestEntity(),
             ),
 
             // Нет нужной команды
             Arguments.of(
-                createUpdate(message = createMessage(text = "/superpuper"), callbackQuery = null),
+                createInputAdapter(
+                    command = BotCommand.EXIT,
+                    button = null,
+                ),
                 null,
             ),
 
             // Клик на кнопку не соответствует событию пролистывания страниц
             Arguments.of(
-                createUpdate(
-                    message = null,
-                    callbackQuery = createCallbackQuery(
-                        data = ButtonClick(type = ButtonType.GET_TEST, data = emptyMap()).toJson(),
-                    )
+                createInputAdapter(
+                    command = null,
+                    button = createBaseButton(type = ButtonType.GET_TEST),
                 ),
                 null,
             ),

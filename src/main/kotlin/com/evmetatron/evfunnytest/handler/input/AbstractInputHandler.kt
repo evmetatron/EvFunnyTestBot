@@ -5,28 +5,32 @@
 
 package com.evmetatron.evfunnytest.handler.input
 
+import com.evmetatron.evfunnytest.dto.adapter.InputAdapter
+import com.evmetatron.evfunnytest.dto.adapter.MessageAdapter
+import com.evmetatron.evfunnytest.dto.context.HandlerContext
 import com.evmetatron.evfunnytest.storage.memory.entity.CurrentTestEntity
-import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod
-import org.telegram.telegrambots.meta.api.objects.Update
 
 abstract class AbstractInputHandler(
-    private val inputHandler: InputHandler?,
+    protected val inputHandler: InputHandler?,
 ) : InputHandler {
     override fun getObject(
-        update: Update,
+        inputAdapter: InputAdapter,
         currentTestEntity: CurrentTestEntity?,
-    ): PartialBotApiMethod<*>? =
-        verify(update, currentTestEntity).takeIf { it }
-            ?.let { handle(update, currentTestEntity) }
-            ?: inputHandler?.getObject(update, currentTestEntity)
+        context: HandlerContext,
+    ): MessageAdapter? =
+        verify(inputAdapter, currentTestEntity, context).takeIf { it }
+            ?.let { handle(inputAdapter, currentTestEntity, context) }
+            ?: inputHandler?.getObject(inputAdapter, currentTestEntity, context)
 
     protected abstract fun verify(
-        update: Update,
+        inputAdapter: InputAdapter,
         currentTestEntity: CurrentTestEntity?,
+        context: HandlerContext,
     ): Boolean
 
     protected abstract fun handle(
-        update: Update,
+        inputAdapter: InputAdapter,
         currentTestEntity: CurrentTestEntity?,
-    ): PartialBotApiMethod<*>
+        context: HandlerContext,
+    ): MessageAdapter
 }

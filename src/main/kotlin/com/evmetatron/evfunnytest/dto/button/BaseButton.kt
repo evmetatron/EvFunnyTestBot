@@ -8,15 +8,13 @@ package com.evmetatron.evfunnytest.dto.button
 import com.evmetatron.evfunnytest.enumerable.ButtonType
 import com.google.gson.Gson
 
-data class ButtonClick(
+data class BaseButton(
     val type: ButtonType,
-    val data: Map<String, String>,
+    val data: Map<String, String> = emptyMap(),
 ) {
-    companion object {
-        const val OFFSET = "offset"
-        const val TEST_ID = "testId"
-    }
-
     fun toJson(): String =
         Gson().toJson(this)
+
+    fun toConcreteButton(): ConcreteButton? =
+        type.getConcreteButton(data)
 }

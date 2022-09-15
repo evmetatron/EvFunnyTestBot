@@ -3,9 +3,10 @@
  * Репозиторий приложения: https://github.com/evmetatron/EvFunnyTestBot
  */
 
-package com.evmetatron.evfunnytest.dto.event
+package com.evmetatron.evfunnytest.dto.adapter
 
-data class ClearButtons(
-    val chatId: Long,
-    val messageId: Int,
+data class UserAdapter(
+    val id: Long,
+    val firstName: String,
+    val lastName: String,
 )
