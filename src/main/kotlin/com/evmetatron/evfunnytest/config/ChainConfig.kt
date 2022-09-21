@@ -9,6 +9,7 @@ import com.evmetatron.evfunnytest.handler.input.SendAddGenderHandler
 import com.evmetatron.evfunnytest.handler.input.GetTestClickHandler
 import com.evmetatron.evfunnytest.handler.input.InputHandler
 import com.evmetatron.evfunnytest.handler.input.ExitTestHandler
+import com.evmetatron.evfunnytest.handler.input.GenderClickHandler
 import com.evmetatron.evfunnytest.handler.input.ListCommandHandler
 import com.evmetatron.evfunnytest.handler.input.StartTestClickHandler
 import com.evmetatron.evfunnytest.handler.test.ReplaceTestHandler
@@ -31,6 +32,7 @@ internal class ChainConfig {
             ListCommandHandler::class,
             GetTestClickHandler::class,
             StartTestClickHandler::class,
+            GenderClickHandler::class,
             SendAddGenderHandler::class,
         )
 

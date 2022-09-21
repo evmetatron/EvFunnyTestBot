@@ -6,6 +6,7 @@
 package com.evmetatron.evfunnytest.enumerable
 
 import com.evmetatron.evfunnytest.dto.button.ConcreteButton
+import com.evmetatron.evfunnytest.dto.button.GenderButton
 import com.evmetatron.evfunnytest.dto.button.GetTestButton
 import com.evmetatron.evfunnytest.dto.button.PageButton
 import com.evmetatron.evfunnytest.dto.button.StartTestButton
@@ -30,7 +31,8 @@ enum class ButtonType {
         override fun getConcreteButton(map: Map<String, String>): ConcreteButton? = null
     },
     SELECT_GENDER {
-        override fun getConcreteButton(map: Map<String, String>): ConcreteButton? = null
+        override fun getConcreteButton(map: Map<String, String>): ConcreteButton =
+            GenderButton.ofMap(map)
     };
 
     abstract fun getConcreteButton(map: Map<String, String>): ConcreteButton?

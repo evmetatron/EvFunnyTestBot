@@ -28,4 +28,8 @@ class CurrentTestService(
 
     fun removeCurrentTest(userId: Long) =
         currentTestRepository.deleteById(userId)
+
+    fun replaceCurrentTest(currentTestEntity: CurrentTestEntity) {
+        currentTestRepository.save(currentTestEntity)
+    }
 }

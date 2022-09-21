@@ -7,32 +7,28 @@ package com.evmetatron.evfunnytest.handler.input
 
 import com.evmetatron.evfunnytest.dto.adapter.InputAdapter
 import com.evmetatron.evfunnytest.dto.adapter.MessageAdapter
+import com.evmetatron.evfunnytest.dto.button.GenderButton
 import com.evmetatron.evfunnytest.dto.context.HandlerContext
-import com.evmetatron.evfunnytest.enumerable.BotCommand
 import com.evmetatron.evfunnytest.enumerable.ButtonType
+import com.evmetatron.evfunnytest.exception.CurrentTestNotFound
+import com.evmetatron.evfunnytest.exception.InputHandlerNotFoundException
+import com.evmetatron.evfunnytest.exception.TestHandlerNotFoundException
 import com.evmetatron.evfunnytest.service.CurrentTestService
-import com.evmetatron.evfunnytest.service.TestService
 import com.evmetatron.evfunnytest.storage.memory.entity.CurrentTestEntity
 
-class ExitTestHandler(
+class GenderClickHandler(
     private val currentTestService: CurrentTestService,
-    private val testService: TestService,
     inputHandler: InputHandler?,
 ) : AbstractInputHandler(inputHandler) {
-    companion object {
-        const val TEST_NOT_STARTED_TEXT = "Запущенных тестов не найдено"
-        const val TEST_EXIT_TEXT = "Тест \"{test}\" был завершен"
-    }
-
     override fun verify(
         inputAdapter: InputAdapter,
         currentTestEntity: CurrentTestEntity?,
         context: HandlerContext,
     ): Boolean {
-        val isExitCommand = inputAdapter.command == BotCommand.EXIT
-        val isExitButton = inputAdapter.button?.type == ButtonType.EXIT_TEST
+        val isCurrentTestExists = currentTestEntity != null
+        val isGenderButton = inputAdapter.button?.type == ButtonType.SELECT_GENDER
 
-        return isExitCommand || isExitButton
+        return isCurrentTestExists && isGenderButton
     }
 
     override fun handle(
@@ -40,14 +36,19 @@ class ExitTestHandler(
         currentTestEntity: CurrentTestEntity?,
         context: HandlerContext,
     ): MessageAdapter {
+        val genderButton = inputAdapter.button?.toConcreteButton() as GenderButton
+
         if (currentTestEntity == null) {
-            return inputAdapter.toSendMessageDefault(TEST_NOT_STARTED_TEXT)
+            throw CurrentTestNotFound()
         }
 
-        val test = testService.getTest(currentTestEntity.testId)
+        if (inputHandler == null) {
+            throw TestHandlerNotFoundException()
+        }
 
-        currentTestService.removeCurrentTest(currentTestEntity.userId)
+        currentTestService.replaceCurrentTest(currentTestEntity.withGender(genderButton.gender))
 
-        return inputAdapter.toSendMessageDefault(TEST_EXIT_TEXT.replace("{test}", test?.name ?: ""))
+        return inputHandler.getObject(inputAdapter, currentTestEntity, context)
+            ?: throw InputHandlerNotFoundException()
     }
 }
