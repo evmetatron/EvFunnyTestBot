@@ -33,7 +33,7 @@ class HandleTestHandler(
             throw CurrentTestNotFound()
         }
 
-        return testHandler?.getObject(inputAdapter, currentTestEntity)
+        return testHandler?.getObject(inputAdapter, currentTestEntity, context)
             ?: throw TestHandlerNotFoundException()
     }
 }

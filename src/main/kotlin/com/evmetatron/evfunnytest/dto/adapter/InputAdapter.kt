@@ -28,4 +28,7 @@ data class InputAdapter(
         toSendMessage(
             DefaultSelection(text),
         )
+
+    fun isMessageOnly(): Boolean =
+        this.button == null && this.command == null && this.text != null
 }

@@ -62,7 +62,7 @@ class ListCommandHandler(
         val hasNext = tests.size > DEFAULT_LIMIT
 
         val text = HELLO_TEXT
-            .replace("{user}", "${inputAdapter.user.firstName} ${inputAdapter.user.lastName}")
+            .replace("{user}", inputAdapter.user.toName())
             .trimIndent()
 
         val buttons = tests.take(DEFAULT_LIMIT).chunked(DEFAULT_CHUNK)

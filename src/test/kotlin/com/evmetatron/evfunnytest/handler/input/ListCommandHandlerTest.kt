@@ -114,7 +114,7 @@ internal class ListCommandHandlerTest {
                 DefaultSelection(
                     text = ListCommandHandler.HELLO_TEXT.replace(
                         "{user}",
-                        "${inputAdapter.user.firstName} ${inputAdapter.user.lastName}"
+                        inputAdapter.user.toName(),
                     ).trimIndent()
                 )
             ),

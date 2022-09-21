@@ -10,6 +10,6 @@ import org.springframework.data.relational.core.mapping.Table
 
 @Table("test_result_replace")
 data class ResultReplaceEntity(
-    val gender: Gender,
+    val gender: Gender?,
     val result: String,
 )
