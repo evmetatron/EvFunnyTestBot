@@ -43,7 +43,7 @@ class ListCommandHandler(
     ): Boolean {
         val isEmptyCurrentTest = currentTestEntity == null
         val isListCommand = inputAdapter.command?.let { it == BotCommand.START || it == BotCommand.LIST } ?: false
-        val isClickPage = inputAdapter.button?.let { it.type == ButtonType.PAGE } ?: false
+        val isClickPage = inputAdapter.button?.type == ButtonType.PAGE
 
         return isEmptyCurrentTest && (isListCommand || isClickPage)
     }

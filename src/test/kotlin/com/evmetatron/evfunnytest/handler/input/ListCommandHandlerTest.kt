@@ -28,14 +28,12 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.EnumSource
 import org.junit.jupiter.params.provider.MethodSource
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
 internal class ListCommandHandlerTest {
     @MockK
@@ -46,6 +44,39 @@ internal class ListCommandHandlerTest {
 
     @InjectMockKs
     private lateinit var listCommandHandler: ListCommandHandler
+
+    private companion object {
+        @JvmStatic
+        private fun verifyFalseProvider() =
+            listOf(
+                // Существует CurrentTestEntity
+                Arguments.of(
+                    createInputAdapter(
+                        command = BotCommand.LIST,
+                        button = null,
+                    ),
+                    createCurrentTestEntity(),
+                ),
+
+                // Нет нужной команды
+                Arguments.of(
+                    createInputAdapter(
+                        command = BotCommand.EXIT,
+                        button = null,
+                    ),
+                    null,
+                ),
+
+                // Клик на кнопку не соответствует событию пролистывания страниц
+                Arguments.of(
+                    createInputAdapter(
+                        command = null,
+                        button = createBaseButton(type = ButtonType.GET_TEST),
+                    ),
+                    null,
+                ),
+            )
+    }
 
     @ParameterizedTest
     @MethodSource("verifyFalseProvider")
@@ -107,7 +138,7 @@ internal class ListCommandHandlerTest {
 
         listCommandHandler.getObject(inputAdapter, currentTestEntity, context) shouldBe expected
 
-        verify(exactly = 0) { inputHandler.getObject(inputAdapter, currentTestEntity, context) }
+        verify(exactly = 0) { inputHandler.getObject(any(), any(), any()) }
     }
 
     @Test
@@ -154,36 +185,6 @@ internal class ListCommandHandlerTest {
 
         listCommandHandler.getObject(inputAdapter, currentTestEntity, context) shouldBe expected
 
-        verify(exactly = 0) { inputHandler.getObject(inputAdapter, currentTestEntity, context) }
+        verify(exactly = 0) { inputHandler.getObject(any(), any(), any()) }
     }
-
-    private fun verifyFalseProvider() =
-        listOf(
-            // Существует CurrentTestEntity
-            Arguments.of(
-                createInputAdapter(
-                    command = BotCommand.LIST,
-                    button = null,
-                ),
-                createCurrentTestEntity(),
-            ),
-
-            // Нет нужной команды
-            Arguments.of(
-                createInputAdapter(
-                    command = BotCommand.EXIT,
-                    button = null,
-                ),
-                null,
-            ),
-
-            // Клик на кнопку не соответствует событию пролистывания страниц
-            Arguments.of(
-                createInputAdapter(
-                    command = null,
-                    button = createBaseButton(type = ButtonType.GET_TEST),
-                ),
-                null,
-            ),
-        )
 }

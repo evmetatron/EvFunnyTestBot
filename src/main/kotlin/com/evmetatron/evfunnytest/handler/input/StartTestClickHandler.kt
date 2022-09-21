@@ -31,7 +31,7 @@ class StartTestClickHandler(
         context: HandlerContext,
     ): Boolean {
         val isEmptyCurrentTest = currentTestEntity == null
-        val isStartTest = inputAdapter.button?.let { it.type == ButtonType.START_TEST } ?: false
+        val isStartTest = inputAdapter.button?.type == ButtonType.START_TEST
 
         return isEmptyCurrentTest && isStartTest
     }

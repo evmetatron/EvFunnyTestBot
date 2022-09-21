@@ -25,13 +25,11 @@ import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
-import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
 internal class SendAddGenderHandlerTest {
     @MockK
@@ -39,6 +37,61 @@ internal class SendAddGenderHandlerTest {
 
     @InjectMockKs
     private lateinit var sendAddGenderHandler: SendAddGenderHandler
+
+    private companion object {
+        @JvmStatic
+        private fun verifyFalseProvider() =
+            listOf(
+                // CurrentTestEntity не создан
+                Arguments.of(
+                    null,
+                ),
+
+                // Пол уже заполнен
+                Arguments.of(
+                    createCurrentTestEntity(
+                        gender = Gender.FEMALE,
+                        allowGender = AllowGender.FOR_ONE,
+                    ),
+                ),
+
+                // Тест для всех полов
+                Arguments.of(
+                    createCurrentTestEntity(
+                        gender = null,
+                        allowGender = AllowGender.ALL,
+                    ),
+                ),
+            )
+
+        @JvmStatic
+        private fun getObjectProvider() =
+            listOf(
+                Arguments.of(
+                    createInputAdapter(
+                        button = createBaseButton(type = ButtonType.START_TEST),
+                    ),
+                    HandlerContext().withHandledStart(),
+                    SendAddGenderHandler.START_TEST_TEXT,
+                ),
+
+                Arguments.of(
+                    createInputAdapter(
+                        button = createBaseButton(type = ButtonType.CANCEL_ANSWER),
+                    ),
+                    HandlerContext(),
+                    SendAddGenderHandler.CANCEL_ANSWER_TEXT,
+                ),
+
+                Arguments.of(
+                    createInputAdapter(
+                        button = null,
+                    ),
+                    HandlerContext(),
+                    SendAddGenderHandler.ERROR_MESSAGE_TEXT,
+                ),
+            )
+    }
 
     @ParameterizedTest
     @MethodSource("verifyFalseProvider")
@@ -85,57 +138,6 @@ internal class SendAddGenderHandlerTest {
 
         sendAddGenderHandler.getObject(inputAdapter, currentTestEntity, context) shouldBe expected
 
-        verify(exactly = 0) { inputHandler.getObject(inputAdapter, currentTestEntity, any()) }
+        verify(exactly = 0) { inputHandler.getObject(any(), any(), any()) }
     }
-
-    private fun verifyFalseProvider() =
-        listOf(
-            // CurrentTestEntity не создан
-            Arguments.of(
-                null,
-            ),
-
-            // Пол уже заполнен
-            Arguments.of(
-                createCurrentTestEntity(
-                    gender = Gender.FEMALE,
-                    allowGender = AllowGender.FOR_ONE,
-                ),
-            ),
-
-            // Тест для всех полов
-            Arguments.of(
-                createCurrentTestEntity(
-                    gender = null,
-                    allowGender = AllowGender.ALL,
-                ),
-            ),
-        )
-
-    private fun getObjectProvider() =
-        listOf(
-            Arguments.of(
-                createInputAdapter(
-                    button = createBaseButton(type = ButtonType.START_TEST),
-                ),
-                HandlerContext().withHandledStart(),
-                SendAddGenderHandler.START_TEST_TEXT,
-            ),
-
-            Arguments.of(
-                createInputAdapter(
-                    button = createBaseButton(type = ButtonType.CANCEL_ANSWER),
-                ),
-                HandlerContext(),
-                SendAddGenderHandler.CANCEL_ANSWER_TEXT,
-            ),
-
-            Arguments.of(
-                createInputAdapter(
-                    button = null,
-                ),
-                HandlerContext(),
-                SendAddGenderHandler.ERROR_MESSAGE_TEXT,
-            ),
-        )
 }

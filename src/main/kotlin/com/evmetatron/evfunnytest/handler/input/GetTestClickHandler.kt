@@ -34,7 +34,7 @@ class GetTestClickHandler(
         context: HandlerContext,
     ): Boolean {
         val isEmptyCurrentTest = currentTestEntity == null
-        val isGetTest = inputAdapter.button?.let { it.type == ButtonType.GET_TEST } ?: false
+        val isGetTest = inputAdapter.button?.type == ButtonType.GET_TEST
 
         return isEmptyCurrentTest && isGetTest
     }
