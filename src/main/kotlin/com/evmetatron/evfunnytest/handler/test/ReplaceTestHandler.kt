@@ -115,9 +115,11 @@ class ReplaceTestHandler(
             ),
             buttons = listOf(
                 listOfNotNull(
-                    (replacedCurrentTest.answers.isNotEmpty()).takeIf { it }?.let {
-                        ButtonAdapter.createCancelAnswerButton()
-                    },
+                    (replacedCurrentTest.answers.isNotEmpty() || replacedCurrentTest.gender != null)
+                        .takeIf { it }
+                        ?.let {
+                            ButtonAdapter.createCancelAnswerButton()
+                        },
                     ButtonAdapter.createExitTestButton(),
                 ),
             ),
