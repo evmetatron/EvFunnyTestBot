@@ -24,13 +24,11 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
 internal class StartTestClickHandlerTest {
     @MockK
@@ -44,6 +42,30 @@ internal class StartTestClickHandlerTest {
 
     @InjectMockKs
     private lateinit var startTestClickHandler: StartTestClickHandler
+
+    private companion object {
+        @JvmStatic
+        private fun verifyFalseProvider() =
+            listOf(
+                // Существует CurrentTestEntity
+                Arguments.of(
+                    createInputAdapter(
+                        text = null,
+                        button = createBaseButton(type = ButtonType.START_TEST),
+                    ),
+                    createCurrentTestEntity(),
+                ),
+
+                // Клик на кнопку не соответствует событию начала теста
+                Arguments.of(
+                    createInputAdapter(
+                        text = null,
+                        button = createBaseButton(type = ButtonType.PAGE),
+                    ),
+                    null,
+                ),
+            )
+    }
 
     @ParameterizedTest
     @MethodSource("verifyFalseProvider")
@@ -108,27 +130,6 @@ internal class StartTestClickHandlerTest {
 
         startTestClickHandler.getObject(inputAdapter, currentTestEntity, context) shouldBe expected
 
-        verify(exactly = 0) { inputHandler.getObject(inputAdapter, currentTestEntity, context) }
+        verify(exactly = 0) { inputHandler.getObject(any(), any(), any()) }
     }
-
-    private fun verifyFalseProvider() =
-        listOf(
-            // Существует CurrentTestEntity
-            Arguments.of(
-                createInputAdapter(
-                    text = null,
-                    button = createBaseButton(type = ButtonType.START_TEST),
-                ),
-                createCurrentTestEntity(),
-            ),
-
-            // Клик на кнопку не соответствует событию начала теста
-            Arguments.of(
-                createInputAdapter(
-                    text = null,
-                    button = createBaseButton(type = ButtonType.PAGE),
-                ),
-                null,
-            ),
-        )
 }

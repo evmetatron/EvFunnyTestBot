@@ -8,6 +8,7 @@ package com.evmetatron.evfunnytest.config
 import com.evmetatron.evfunnytest.handler.input.SendAddGenderHandler
 import com.evmetatron.evfunnytest.handler.input.GetTestClickHandler
 import com.evmetatron.evfunnytest.handler.input.InputHandler
+import com.evmetatron.evfunnytest.handler.input.ExitTestHandler
 import com.evmetatron.evfunnytest.handler.input.ListCommandHandler
 import com.evmetatron.evfunnytest.handler.input.StartTestClickHandler
 import com.evmetatron.evfunnytest.handler.test.ReplaceTestHandler
@@ -26,6 +27,7 @@ internal class ChainConfig {
     @Bean
     fun inputHandler(@Autowired chainFactory: ChainOfResponsibilityFactory): InputHandler? =
         chainFactory.createChain<InputHandler>(
+            ExitTestHandler::class,
             ListCommandHandler::class,
             GetTestClickHandler::class,
             StartTestClickHandler::class,

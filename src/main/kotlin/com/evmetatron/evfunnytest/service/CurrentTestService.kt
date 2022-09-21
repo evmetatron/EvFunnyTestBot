@@ -25,4 +25,7 @@ class CurrentTestService(
             type = testEntity.type,
             allowGender = testEntity.allowGender,
         ).apply { currentTestRepository.save(this) }
+
+    fun removeCurrentTest(userId: Long) =
+        currentTestRepository.deleteById(userId)
 }

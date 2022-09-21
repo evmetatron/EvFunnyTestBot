@@ -20,7 +20,7 @@ import org.springframework.data.repository.findByIdOrNull
 
 @ExtendWith(MockKExtension::class)
 internal class CurrentTestServiceTest {
-    @MockK
+    @MockK(relaxed = true)
     private lateinit var currentTestRepository: CurrentTestRepository
 
     @InjectMockKs
@@ -54,5 +54,14 @@ internal class CurrentTestServiceTest {
         currentTestService.createCurrentTest(userId, test) shouldBe expected
 
         verify(exactly = 1) { currentTestRepository.save(expected) }
+    }
+
+    @Test
+    fun `success removeCurrentTest`() {
+        val userId = 1L
+
+        currentTestService.removeCurrentTest(userId)
+
+        verify(exactly = 1) { currentTestRepository.deleteById(userId) }
     }
 }
