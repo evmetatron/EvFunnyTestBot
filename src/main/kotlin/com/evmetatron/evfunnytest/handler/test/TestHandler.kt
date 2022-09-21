@@ -7,12 +7,13 @@ package com.evmetatron.evfunnytest.handler.test
 
 import com.evmetatron.evfunnytest.dto.adapter.InputAdapter
 import com.evmetatron.evfunnytest.dto.adapter.MessageAdapter
+import com.evmetatron.evfunnytest.dto.context.HandlerContext
 import com.evmetatron.evfunnytest.storage.memory.entity.CurrentTestEntity
 
 interface TestHandler {
     fun getObject(
         inputAdapter: InputAdapter,
         currentTestEntity: CurrentTestEntity,
-        text: String? = null
+        context: HandlerContext,
     ): MessageAdapter?
 }

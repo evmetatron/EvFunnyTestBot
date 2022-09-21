@@ -37,11 +37,13 @@ fun createUserAdapter(
     id: Long = faker.number().randomNumber(),
     firstName: String = faker.name().firstName(),
     lastName: String = faker.name().lastName(),
+    userName: String? = faker.name().username(),
 ): UserAdapter =
     UserAdapter(
         id = id,
         firstName = firstName,
         lastName = lastName,
+        userName = userName,
     )
 
 fun createButtonAdapter(

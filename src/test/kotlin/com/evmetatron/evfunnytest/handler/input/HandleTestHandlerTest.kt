@@ -78,7 +78,7 @@ internal class HandleTestHandlerTest {
 
         val expected = createSendMessageAdapter()
 
-        every { testHandler.getObject(inputAdapter, currentTestEntity) } returns expected
+        every { testHandler.getObject(inputAdapter, currentTestEntity, context) } returns expected
 
         handleTestHandler.getObject(inputAdapter, currentTestEntity, context) shouldBe expected
 

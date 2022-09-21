@@ -46,9 +46,11 @@ class GenderClickHandler(
             throw TestHandlerNotFoundException()
         }
 
-        currentTestService.replaceCurrentTest(currentTestEntity.withGender(genderButton.gender))
+        val newCurrentTest = currentTestEntity.withGender(genderButton.gender)
 
-        return inputHandler.getObject(inputAdapter, currentTestEntity, context)
+        currentTestService.replaceCurrentTest(newCurrentTest)
+
+        return inputHandler.getObject(inputAdapter, newCurrentTest, context)
             ?: throw InputHandlerNotFoundException()
     }
 }

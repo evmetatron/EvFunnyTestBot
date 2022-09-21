@@ -130,3 +130,38 @@ fun createRemoveButtonsEntity(
         chatId = chatId,
         messageIds = messageIds,
     )
+
+fun createTestReplaceViewEntity(
+    id: Long = faker.number().randomNumber(),
+    name: String = faker.harryPotter().quote(),
+    description: String = faker.harryPotter().quote(),
+    allowGender: AllowGender = rndEnum(),
+    questions: List<QuestionReplaceEntity> = (1..5).map { createQuestionReplaceEntity() },
+    results: List<ResultReplaceEntity> = Gender.values().map { createResultReplaceEntity(gender = it) },
+): TestReplaceViewEntity =
+    TestReplaceViewEntity(
+        id = id,
+        name = name,
+        description = description,
+        allowGender = allowGender,
+        questions = questions,
+        results = results,
+    )
+
+fun createQuestionReplaceEntity(
+    num: Int = faker.number().randomDigit(),
+    question: String = faker.harryPotter().quote(),
+): QuestionReplaceEntity =
+    QuestionReplaceEntity(
+        num = num,
+        question = question,
+    )
+
+fun createResultReplaceEntity(
+    gender: Gender? = rndEnum<Gender>(),
+    result: String = faker.harryPotter().quote(),
+): ResultReplaceEntity =
+    ResultReplaceEntity(
+        gender = gender,
+        result = result,
+    )

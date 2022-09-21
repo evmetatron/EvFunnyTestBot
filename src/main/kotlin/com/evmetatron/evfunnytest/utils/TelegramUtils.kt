@@ -53,6 +53,7 @@ fun Update.toInputAdapter(): InputAdapter =
                 id = user.id,
                 firstName = user.firstName,
                 lastName = user.lastName,
+                userName = user.userName,
             )
         } ?: throw TelegramPropertyException(),
         button = callbackQuery?.data

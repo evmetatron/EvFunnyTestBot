@@ -7,25 +7,30 @@ package com.evmetatron.evfunnytest.handler.test
 
 import com.evmetatron.evfunnytest.dto.adapter.InputAdapter
 import com.evmetatron.evfunnytest.dto.adapter.MessageAdapter
+import com.evmetatron.evfunnytest.dto.context.HandlerContext
 import com.evmetatron.evfunnytest.enumerable.TestType
 import com.evmetatron.evfunnytest.storage.memory.entity.CurrentTestEntity
-import org.springframework.context.ApplicationEventPublisher
 
 abstract class AbstractTestHandler(
-    private val publisher: ApplicationEventPublisher,
     private val testHandler: TestHandler?,
 ) : TestHandler {
     override fun getObject(
         inputAdapter: InputAdapter,
         currentTestEntity: CurrentTestEntity,
-        text: String?
+        context: HandlerContext,
     ): MessageAdapter? {
         if (currentTestEntity.type != testType()) {
-            return testHandler?.getObject(inputAdapter, currentTestEntity, text)
+            return testHandler?.getObject(inputAdapter, currentTestEntity, context)
         }
 
-        return null
+        return handle(inputAdapter, currentTestEntity, context)
     }
 
     protected abstract fun testType(): TestType
+
+    protected abstract fun handle(
+        inputAdapter: InputAdapter,
+        currentTestEntity: CurrentTestEntity,
+        context: HandlerContext,
+    ): MessageAdapter
 }

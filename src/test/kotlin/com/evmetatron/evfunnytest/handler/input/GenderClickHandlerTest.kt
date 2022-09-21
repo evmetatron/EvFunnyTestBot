@@ -82,17 +82,18 @@ internal class GenderClickHandlerTest {
         val inputAdapter = createInputAdapter(
             button = button.toBaseButton(),
         )
-        val currentTestEntity = createCurrentTestEntity(userId = inputAdapter.user.id)
+        val currentTestEntity = createCurrentTestEntity(userId = inputAdapter.user.id, gender = null)
+        val newCurrentTestEntity = currentTestEntity.withGender(button.gender)
         val context = HandlerContext()
 
         val expected = createSendMessageAdapter()
 
-        every { inputHandler.getObject(inputAdapter, currentTestEntity, context) } returns expected
+        every { inputHandler.getObject(inputAdapter, newCurrentTestEntity, context) } returns expected
 
         genderClickHandler.getObject(inputAdapter, currentTestEntity, context) shouldBe expected
 
-        verify(exactly = 1) { currentTestService.replaceCurrentTest(currentTestEntity.withGender(button.gender)) }
+        verify(exactly = 1) { currentTestService.replaceCurrentTest(newCurrentTestEntity) }
 
-        verify(exactly = 1) { inputHandler.getObject(inputAdapter, currentTestEntity, context) }
+        verify(exactly = 1) { inputHandler.getObject(inputAdapter, newCurrentTestEntity, context) }
     }
 }
