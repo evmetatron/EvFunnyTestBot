@@ -64,4 +64,15 @@ internal class CurrentTestServiceTest {
 
         verify(exactly = 1) { currentTestRepository.deleteById(userId) }
     }
+
+    @Test
+    fun `success replaceCurrentTest`() {
+        val currentTestEntity = createCurrentTestEntity()
+
+        every { currentTestRepository.save(currentTestEntity) } returns currentTestEntity
+
+        currentTestService.replaceCurrentTest(currentTestEntity)
+
+        verify(exactly = 1) { currentTestRepository.save(currentTestEntity) }
+    }
 }
