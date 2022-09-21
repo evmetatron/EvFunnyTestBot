@@ -8,6 +8,7 @@ package com.evmetatron.evfunnytest.storage.memory.entity
 import com.evmetatron.evfunnytest.enumerable.AllowGender
 import com.evmetatron.evfunnytest.enumerable.Gender
 import com.evmetatron.evfunnytest.enumerable.TestType
+import com.evmetatron.evfunnytest.exception.AnswerException
 import org.springframework.data.annotation.Id
 import org.springframework.data.redis.core.RedisHash
 
@@ -33,7 +34,13 @@ data class CurrentTestEntity(
         )
 
     fun withoutAnswer(): CurrentTestEntity =
-        this.copy(answers = this.answers.dropLast(1))
+        if (this.answers.isNotEmpty()) {
+            this.copy(answers = this.answers.dropLast(1))
+        } else if (this.gender != null) {
+            this.copy(gender = null)
+        } else {
+            throw AnswerException("Ошибка при отмене ответа")
+        }
 
     fun getNeedAnswerNum(): Int =
         (this.answers.lastOrNull()?.num ?: 0) + 1
