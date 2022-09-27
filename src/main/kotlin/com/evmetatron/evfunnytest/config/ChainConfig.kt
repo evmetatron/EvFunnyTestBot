@@ -15,6 +15,7 @@ import com.evmetatron.evfunnytest.handler.input.HandleTestHandler
 import com.evmetatron.evfunnytest.handler.input.ListCommandHandler
 import com.evmetatron.evfunnytest.handler.input.StartTestClickHandler
 import com.evmetatron.evfunnytest.handler.test.ReplaceTestHandler
+import com.evmetatron.evfunnytest.handler.test.ScoreTestHandler
 import com.evmetatron.evfunnytest.handler.test.TestHandler
 import com.evmetatron.evfunnytest.infrastructure.ChainOfResponsibilityFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -29,7 +30,7 @@ internal class ChainConfig {
 
     @Bean
     fun inputHandler(@Autowired chainFactory: ChainOfResponsibilityFactory): InputHandler? =
-        chainFactory.createChain<InputHandler>(
+        chainFactory.createChain(
             CancelClickHandler::class,
             ExitTestHandler::class,
             ListCommandHandler::class,
@@ -42,7 +43,8 @@ internal class ChainConfig {
 
     @Bean
     fun testHandler(@Autowired chainFactory: ChainOfResponsibilityFactory): TestHandler? =
-        chainFactory.createChain<TestHandler>(
+        chainFactory.createChain(
             ReplaceTestHandler::class,
+            ScoreTestHandler::class,
         )
 }

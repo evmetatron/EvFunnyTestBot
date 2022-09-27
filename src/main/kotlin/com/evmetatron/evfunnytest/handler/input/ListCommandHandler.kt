@@ -24,9 +24,9 @@ class ListCommandHandler(
     inputHandler: InputHandler?,
 ) : AbstractInputHandler(inputHandler) {
     companion object {
-        const val DEFAULT_LIMIT = 15
+        const val DEFAULT_LIMIT = 8
         const val DEFAULT_OFFSET = 0
-        const val DEFAULT_CHUNK = 3
+        const val DEFAULT_CHUNK = 2
         const val HELLO_TEXT = """
                 Привет {user}
                 

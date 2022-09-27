@@ -6,4 +6,5 @@ insert into test (id, name, description, type, allow_gender) values
 (5, 'Test 5', 'Description test 5', 'REPLACE', 'ALL'),
 (6, 'Test 6', 'Description test 6', 'REPLACE', 'ALL'),
 (7, 'Test 7', 'Description test 7', 'REPLACE', 'ALL'),
-(8, 'Test 8', 'Description test 8', 'REPLACE', 'ALL');
+(8, 'Test 8', 'Description test 8', 'REPLACE', 'ALL'),
+(9, 'Test 9', 'Description test 9', 'SCORE', 'ALL');

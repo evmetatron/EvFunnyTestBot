@@ -9,9 +9,13 @@ import com.evmetatron.evfunnytest.enumerable.AllowGender
 import com.evmetatron.evfunnytest.enumerable.Gender
 import com.evmetatron.evfunnytest.enumerable.TestType
 import com.evmetatron.evfunnytest.storage.db.entity.QuestionReplaceEntity
+import com.evmetatron.evfunnytest.storage.db.entity.QuestionScoreEntity
+import com.evmetatron.evfunnytest.storage.db.entity.QuestionVariableScoreEntity
 import com.evmetatron.evfunnytest.storage.db.entity.ResultReplaceEntity
+import com.evmetatron.evfunnytest.storage.db.entity.ResultScoreEntity
 import com.evmetatron.evfunnytest.storage.db.entity.TestEntity
 import com.evmetatron.evfunnytest.storage.db.entity.TestReplaceViewEntity
+import com.evmetatron.evfunnytest.storage.db.entity.TestScoreViewEntity
 import com.evmetatron.evfunnytest.storage.memory.entity.CurrentAnswerEntity
 import com.evmetatron.evfunnytest.storage.memory.entity.CurrentTestEntity
 import com.evmetatron.evfunnytest.storage.memory.entity.RemoveButtonsEntity
@@ -75,6 +79,70 @@ fun testReplaceViewEntity1() =
             ResultReplaceEntity(
                 gender = Gender.FEMALE,
                 result = "Result for female",
+            ),
+        ),
+    )
+
+@Suppress("LongMethod")
+fun testScoreViewEntity9(): TestScoreViewEntity =
+    TestScoreViewEntity(
+        id = 9,
+        name = "Test 9",
+        description = "Description test 9",
+        allowGender = AllowGender.ALL,
+        questions = listOf(
+            QuestionScoreEntity(
+                id = 1,
+                num = 1,
+                question = "Question 1",
+                description = "Description 1",
+                variables = listOf(
+                    QuestionVariableScoreEntity(
+                        id = 1,
+                        variable = "Variable 1",
+                        isTrue = true,
+                    ),
+                    QuestionVariableScoreEntity(
+                        id = 2,
+                        variable = "Variable 2",
+                        isTrue = false,
+                    ),
+                ),
+            ),
+            QuestionScoreEntity(
+                id = 2,
+                num = 2,
+                question = "Question 2",
+                description = "Description 2",
+                variables = listOf(
+                    QuestionVariableScoreEntity(
+                        id = 3,
+                        variable = "Variable 3",
+                        isTrue = true,
+                    ),
+                    QuestionVariableScoreEntity(
+                        id = 4,
+                        variable = "Variable 4",
+                        isTrue = false,
+                    ),
+                    QuestionVariableScoreEntity(
+                        id = 5,
+                        variable = "Variable 5",
+                        isTrue = false,
+                    ),
+                ),
+            ),
+        ),
+        results = listOf(
+            ResultScoreEntity(
+                from = 0,
+                to = 1,
+                result = "Result 1",
+            ),
+            ResultScoreEntity(
+                from = 2,
+                to = null,
+                result = "Result 2",
             ),
         ),
     )
@@ -163,5 +231,59 @@ fun createResultReplaceEntity(
 ): ResultReplaceEntity =
     ResultReplaceEntity(
         gender = gender,
+        result = result,
+    )
+
+fun createTestScoreViewEntity(
+    id: Long = faker.number().randomNumber(),
+    name: String = faker.harryPotter().quote(),
+    description: String = faker.harryPotter().quote(),
+    allowGender: AllowGender = rndEnum(),
+    questions: List<QuestionScoreEntity> = (1..5).map { createQuestionScoreEntity() },
+    results: List<ResultScoreEntity> = (1..5).map { createResultScoreEntity() },
+): TestScoreViewEntity =
+    TestScoreViewEntity(
+        id = id,
+        name = name,
+        description = description,
+        allowGender = allowGender,
+        questions = questions,
+        results = results,
+    )
+
+fun createQuestionScoreEntity(
+    id: Long = faker.number().randomNumber(),
+    num: Int = faker.number().randomDigit(),
+    question: String = faker.harryPotter().quote(),
+    description: String = faker.harryPotter().quote(),
+    variables: List<QuestionVariableScoreEntity> = (1..5).map { createQuestionVariableScoreEntity() },
+): QuestionScoreEntity =
+    QuestionScoreEntity(
+        id = id,
+        num = num,
+        question = question,
+        description = description,
+        variables = variables,
+    )
+
+fun createQuestionVariableScoreEntity(
+    id: Long = faker.number().randomNumber(),
+    variable: String = faker.harryPotter().quote(),
+    isTrue: Boolean = faker.bool().bool(),
+): QuestionVariableScoreEntity =
+    QuestionVariableScoreEntity(
+        id = id,
+        variable = variable,
+        isTrue = isTrue,
+    )
+
+fun createResultScoreEntity(
+    from: Int = faker.number().randomDigit(),
+    to: Int? = faker.number().randomDigit(),
+    result: String = faker.harryPotter().quote(),
+): ResultScoreEntity =
+    ResultScoreEntity(
+        from = from,
+        to = to,
         result = result,
     )
