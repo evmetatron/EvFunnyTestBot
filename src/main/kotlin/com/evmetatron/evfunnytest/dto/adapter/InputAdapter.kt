@@ -19,9 +19,12 @@ data class InputAdapter(
     val command: BotCommand?,
 ) {
     fun toSendMessage(vararg text: TextSelection): SendMessageAdapter =
+        toSendMessage(text.toList())
+
+    fun toSendMessage(text: List<TextSelection>): SendMessageAdapter =
         SendMessageAdapter(
             chatId = chatId,
-            text = text.toList(),
+            text = text,
         )
 
     fun toSendMessageDefault(text: String): SendMessageAdapter =

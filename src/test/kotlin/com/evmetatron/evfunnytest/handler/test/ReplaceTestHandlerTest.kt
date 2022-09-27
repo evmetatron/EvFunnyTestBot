@@ -61,7 +61,7 @@ internal class ReplaceTestHandlerTest {
                         button = createBaseButton(type = ButtonType.START_TEST),
                     ),
                     HandlerContext().withHandledStart(),
-                    ReplaceTestHandler.STARTED_TEST_TEXT,
+                    AbstractTestHandler.STARTED_TEST_TEXT,
                 ),
 
                 Arguments.of(
@@ -70,7 +70,7 @@ internal class ReplaceTestHandlerTest {
                         button = createBaseButton(type = ButtonType.SELECT_GENDER),
                     ),
                     HandlerContext(),
-                    ReplaceTestHandler.ANSWER_ACCEPTED_TEXT,
+                    AbstractTestHandler.ANSWER_ACCEPTED_TEXT,
                 ),
 
                 Arguments.of(
@@ -112,7 +112,7 @@ internal class ReplaceTestHandlerTest {
         every { testReplaceService.getTest(currentTestEntity.testId) } returns null
 
         replaceTestHandler.getObject(inputAdapter, currentTestEntity, context) shouldBe
-            inputAdapter.toSendMessageDefault(ReplaceTestHandler.TEST_NOT_FOUND_TEXT)
+            inputAdapter.toSendMessageDefault(AbstractTestHandler.TEST_NOT_FOUND_TEXT)
 
         verify(exactly = 1) { currentTestService.removeCurrentTest(currentTestEntity.userId) }
     }
@@ -155,7 +155,7 @@ internal class ReplaceTestHandlerTest {
         )
 
         val expected = inputAdapter.toSendMessage(
-            BoldSelection(ReplaceTestHandler.TEST_DONE_TEXT),
+            BoldSelection(AbstractTestHandler.TEST_DONE_TEXT),
             DefaultSelection("\n\n"),
             DefaultSelection("вот Ответ Б и Ответ В так Ответ Б без Ответ Г в Ответ Д над Ответ А"),
         )
@@ -202,7 +202,7 @@ internal class ReplaceTestHandlerTest {
             chatId = inputAdapter.chatId,
             clearButtonsLater = true,
             text = listOf(
-                UnderlineSelection(ReplaceTestHandler.ANSWER_ACCEPTED_TEXT),
+                UnderlineSelection(AbstractTestHandler.ANSWER_ACCEPTED_TEXT),
                 DefaultSelection("\n\n"),
                 BoldSelection(ReplaceTestHandler.ANSWER_TO_QUESTION_TEXT),
                 DefaultSelection("\n\n"),
