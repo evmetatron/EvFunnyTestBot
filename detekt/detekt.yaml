@@ -2,18 +2,24 @@ complexity:
   LongParameterList:
     excludes:
       - "**/test/**"
+      - "**/testFixtures/**"
     constructorThreshold: 8
   TooManyFunctions:
     excludes:
       - "**/test/**"
+      - "**/testFixtures/**"
     thresholdInInterfaces: 15
     thresholdInObjects: 15
     thresholdInClasses: 15
+  LongMethod:
+    excludes:
+      - "**/testFixtures/**"
 
 style:
   MagicNumber:
     excludes:
       - "**/test/**"
+      - "**/testFixtures/**"
   CollapsibleIfStatements:
     active: true
   ExplicitCollectionElementAccessMethod:
