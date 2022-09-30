@@ -1,7 +1,8 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-	id("io.gitlab.arturbosch.detekt").version("1.21.0")
+	id("java-test-fixtures")
+	id("io.gitlab.arturbosch.detekt") version "1.21.0"
 	id("org.springframework.boot") version "2.7.3"
 	id("io.spring.dependency-management") version "1.0.13.RELEASE"
 	kotlin("jvm") version "1.6.21"
@@ -16,53 +17,69 @@ repositories {
 	mavenCentral()
 }
 
-dependencies {
-	implementation("org.springframework.boot:spring-boot-starter")
-	implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
-	implementation("org.springframework.data:spring-data-redis")
-	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
-	implementation("redis.clients:jedis")
-	implementation("org.flywaydb:flyway-core")
-	implementation("com.google.code.gson:gson")
-	implementation("com.github.xabgesagtx:telegram-spring-boot-starter:0.26")
-
-	runtimeOnly("org.postgresql:postgresql")
-
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	testImplementation("io.kotest:kotest-runner-junit5:5.4.1")
-	testImplementation("io.mockk:mockk:1.12.5")
-	testImplementation("com.github.javafaker:javafaker:1.0.2"){
-		exclude("org.yaml")
+subprojects {
+	apply {
+		plugin("io.gitlab.arturbosch.detekt")
+		plugin("java-test-fixtures")
+		plugin("org.springframework.boot")
+		plugin("io.spring.dependency-management")
+		plugin("org.jetbrains.kotlin.jvm")
+		plugin("org.jetbrains.kotlin.plugin.spring")
 	}
-	testImplementation("org.junit.jupiter:junit-jupiter")
-	testImplementation("org.junit.jupiter:junit-jupiter-api")
-	testImplementation("org.junit.jupiter:junit-jupiter-engine")
-	testImplementation("org.junit.jupiter:junit-jupiter-params")
-	testImplementation("org.testcontainers:testcontainers:1.17.3")
-	testImplementation("org.testcontainers:postgresql:1.17.3")
-	testImplementation("org.testcontainers:junit-jupiter:1.17.3")
-}
 
-detekt {
-	source = files("$rootDir/src/main/kotlin", "$rootDir/src/test/kotlin")
-	config = files("$rootDir/detekt/detekt.yaml")
-	buildUponDefaultConfig = true
-	autoCorrect = true
+	repositories {
+		mavenCentral()
+	}
 
 	dependencies {
-		detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.21.0")
-	}
-}
+		implementation("org.springframework.boot:spring-boot-starter")
+		implementation("org.jetbrains.kotlin:kotlin-reflect")
+		implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+		implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
+		implementation("com.google.code.gson:gson")
 
-tasks.withType<KotlinCompile> {
-	kotlinOptions {
-		freeCompilerArgs = listOf("-Xjsr305=strict")
-		jvmTarget = JavaVersion.VERSION_11.toString()
-	}
-}
+		testImplementation("org.springframework.boot:spring-boot-starter-test")
+		testImplementation("io.kotest:kotest-runner-junit5:5.4.1")
+		testImplementation("io.mockk:mockk:1.12.5")
+		testImplementation("org.junit.jupiter:junit-jupiter")
+		testImplementation("org.junit.jupiter:junit-jupiter-api")
+		testImplementation("org.junit.jupiter:junit-jupiter-engine")
+		testImplementation("org.junit.jupiter:junit-jupiter-params")
+		testImplementation("com.github.javafaker:javafaker:1.0.2") {
+			exclude("org.yaml")
+		}
 
-tasks.withType<Test> {
-	useJUnitPlatform()
+		testFixturesImplementation("com.github.javafaker:javafaker:1.0.2"){
+			exclude("org.yaml")
+		}
+	}
+
+	detekt {
+		source = files(
+			"$rootDir/test-handler/src/main/kotlin",
+			"$rootDir/test-handler/src/test/kotlin",
+			"$rootDir/test-handler/src/testFixtures/kotlin",
+			"$rootDir/telegram-bot/src/main/kotlin",
+			"$rootDir/telegram-bot/src/test/kotlin",
+			"$rootDir/telegram-bot/src/testFixtures/kotlin",
+		)
+		config = files("$rootDir/detekt/detekt.yaml")
+		buildUponDefaultConfig = true
+		autoCorrect = true
+
+		dependencies {
+			detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.21.0")
+		}
+	}
+
+	tasks.withType<KotlinCompile> {
+		kotlinOptions {
+			freeCompilerArgs = listOf("-Xjsr305=strict")
+			jvmTarget = JavaVersion.VERSION_11.toString()
+		}
+	}
+
+	tasks.withType<Test> {
+		useJUnitPlatform()
+	}
 }
