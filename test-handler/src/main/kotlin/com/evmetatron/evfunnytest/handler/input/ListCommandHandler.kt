@@ -30,7 +30,7 @@ class ListCommandHandler(
         const val HELLO_TEXT = """
                 Привет {user}
                 
-                Я бот с забавными тестами.
+                Я бот с тестами.
                 
                 Можешь выбрать любой тест и пройти его
             """
