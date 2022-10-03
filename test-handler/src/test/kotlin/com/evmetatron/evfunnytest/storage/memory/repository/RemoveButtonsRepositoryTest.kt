@@ -10,9 +10,7 @@ import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.test.context.ContextConfiguration
 
-@ContextConfiguration(classes = [RemoveButtonsRepository::class])
 internal class RemoveButtonsRepositoryTest : BaseTest() {
     @Autowired
     private lateinit var removeButtonsRepository: RemoveButtonsRepository
