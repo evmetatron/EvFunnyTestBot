@@ -5,7 +5,6 @@
 
 package com.evmetatron.evfunnytest.storage.db.repository
 
-import com.evmetatron.evfunnytest.settings.InstancePostgresContainer
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
@@ -16,6 +15,7 @@ import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
+import com.evmetatron.evfunnytest.testcontainer.InstancePostgresContainer
 
 @Suppress("UnnecessaryAbstractClass", "UtilityClassWithPublicConstructor")
 @ContextConfiguration(classes = [CrudRepository::class])
