@@ -5,7 +5,6 @@
 
 package com.evmetatron.evfunnytest.storage.memory.repository
 
-import com.evmetatron.evfunnytest.settings.InstanceRedisContainer
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.autoconfigure.data.redis.DataRedisTest
 import org.springframework.context.annotation.ComponentScan
@@ -13,6 +12,7 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.test.context.ContextConfiguration
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.junit.jupiter.Testcontainers
+import com.evmetatron.evfunnytest.testcontainer.InstanceRedisContainer
 
 @Suppress("UnnecessaryAbstractClass", "UtilityClassWithPublicConstructor")
 @ContextConfiguration(classes = [CrudRepository::class])

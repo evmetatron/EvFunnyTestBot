@@ -3,7 +3,7 @@
  * Репозиторий приложения: https://github.com/evmetatron/EvFunnyTestBot
  */
 
-package com.evmetatron.evfunnytest.infrastructure
+package com.evmetatron.evfunnytest.factory.chain
 
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
@@ -11,9 +11,11 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.jvmErasure
+import org.springframework.context.ConfigurableApplicationContext
 
-internal class ChainOfResponsibilityFactory : ApplicationContextAware {
-    private lateinit var applicationContext: ApplicationContext
+class ChainFactory : ApplicationContextAware {
+    lateinit var applicationContext: ConfigurableApplicationContext
+
     inline fun <reified T : Any> createChain(vararg chains: KClass<*>): T? {
         var prev: T? = null
 
@@ -26,7 +28,7 @@ internal class ChainOfResponsibilityFactory : ApplicationContextAware {
                 ?.map { parameter ->
                     if (parameter.type.jvmErasure.java == T::class.java) {
                         prev
-                    } else if (applicationContext::class.isSubclassOf(parameter.type.jvmErasure)) {
+                    } else if (ApplicationContext::class.isSubclassOf(parameter.type.jvmErasure)) {
                         applicationContext
                     } else {
                         applicationContext.autowireCapableBeanFactory.getBean(parameter.type.jvmErasure.java)
@@ -42,6 +44,6 @@ internal class ChainOfResponsibilityFactory : ApplicationContextAware {
     }
 
     override fun setApplicationContext(applicationContext: ApplicationContext) {
-        this.applicationContext = applicationContext
+        this.applicationContext = applicationContext as ConfigurableApplicationContext
     }
 }

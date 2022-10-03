@@ -3,7 +3,7 @@
  * Репозиторий приложения: https://github.com/evmetatron/EvFunnyTestBot
  */
 
-package com.evmetatron.evfunnytest.settings
+package com.evmetatron.evfunnytest.testcontainer
 
 import org.testcontainers.containers.GenericContainer
 
