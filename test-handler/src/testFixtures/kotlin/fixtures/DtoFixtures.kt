@@ -10,8 +10,6 @@ import com.evmetatron.evfunnytest.dto.adapter.EditButtonsAdapter
 import com.evmetatron.evfunnytest.dto.adapter.InputAdapter
 import com.evmetatron.evfunnytest.dto.adapter.SendMessageAdapter
 import com.evmetatron.evfunnytest.dto.adapter.UserAdapter
-import com.evmetatron.evfunnytest.dto.adapter.textselection.DefaultSelection
-import com.evmetatron.evfunnytest.dto.adapter.textselection.TextSelection
 import com.evmetatron.evfunnytest.dto.button.BaseButton
 import com.evmetatron.evfunnytest.enumerable.BotCommand
 import com.evmetatron.evfunnytest.enumerable.ButtonType
@@ -67,7 +65,7 @@ fun createBaseButton(
 fun createSendMessageAdapter(
     chatId: Long = faker.number().randomNumber(),
     clearButtonsLater: Boolean = false,
-    text: List<TextSelection>? = listOf(createDefaultSelection()),
+    text: String = faker.harryPotter().quote(),
     buttons: List<List<ButtonAdapter>>? = (1..3).map { (1..3).map { createButtonAdapter() } },
 ): SendMessageAdapter =
     SendMessageAdapter(
@@ -88,11 +86,4 @@ fun createEditButtonsAdapter(
         clearButtonsLater = clearButtonsLater,
         messageId = messageId,
         buttons = buttons,
-    )
-
-fun createDefaultSelection(
-    text: String = faker.harryPotter().quote(),
-): DefaultSelection =
-    DefaultSelection(
-        text = text,
     )

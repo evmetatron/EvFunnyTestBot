@@ -10,7 +10,6 @@ import com.evmetatron.evfunnytest.dto.adapter.EditButtonsAdapter
 import com.evmetatron.evfunnytest.dto.adapter.InputAdapter
 import com.evmetatron.evfunnytest.dto.adapter.MessageAdapter
 import com.evmetatron.evfunnytest.dto.adapter.SendMessageAdapter
-import com.evmetatron.evfunnytest.dto.adapter.textselection.DefaultSelection
 import com.evmetatron.evfunnytest.dto.button.GetTestButton
 import com.evmetatron.evfunnytest.dto.button.PageButton
 import com.evmetatron.evfunnytest.dto.context.HandlerContext
@@ -101,7 +100,7 @@ class ListCommandHandler(
         return if (pageButton == null) {
             SendMessageAdapter(
                 chatId = inputAdapter.chatId,
-                text = listOf(DefaultSelection(text = text)),
+                text = text,
                 buttons = buttons,
             )
         } else {

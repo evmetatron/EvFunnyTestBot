@@ -7,8 +7,6 @@ package com.evmetatron.evfunnytest.handler.input
 
 import com.evmetatron.evfunnytest.dto.adapter.ButtonAdapter
 import com.evmetatron.evfunnytest.dto.adapter.InputAdapter
-import com.evmetatron.evfunnytest.dto.adapter.textselection.DefaultSelection
-import com.evmetatron.evfunnytest.dto.adapter.textselection.UnderlineSelection
 import com.evmetatron.evfunnytest.dto.button.GenderButton
 import com.evmetatron.evfunnytest.dto.context.HandlerContext
 import com.evmetatron.evfunnytest.enumerable.AllowGender
@@ -115,10 +113,7 @@ internal class SendAddGenderHandlerTest {
         val expected = createSendMessageAdapter(
             clearButtonsLater = true,
             chatId = inputAdapter.chatId,
-            text = listOf(
-                UnderlineSelection(text = "$sendText\n\n"),
-                DefaultSelection(text = SendAddGenderHandler.SELECT_GENDER_TEXT),
-            ),
+            text = "[u]$sendText[/u]\n\n${SendAddGenderHandler.SELECT_GENDER_TEXT}",
             buttons = listOf(
                 listOf(
                     ButtonAdapter(

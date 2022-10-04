@@ -9,10 +9,6 @@ import com.evmetatron.evfunnytest.dto.adapter.ButtonAdapter
 import com.evmetatron.evfunnytest.dto.adapter.InputAdapter
 import com.evmetatron.evfunnytest.dto.adapter.MessageAdapter
 import com.evmetatron.evfunnytest.dto.adapter.SendMessageAdapter
-import com.evmetatron.evfunnytest.dto.adapter.textselection.BoldSelection
-import com.evmetatron.evfunnytest.dto.adapter.textselection.DefaultSelection
-import com.evmetatron.evfunnytest.dto.adapter.textselection.ItalicSelection
-import com.evmetatron.evfunnytest.dto.adapter.textselection.UnderlineSelection
 import com.evmetatron.evfunnytest.dto.button.TestVariableButton
 import com.evmetatron.evfunnytest.dto.context.HandlerContext
 import com.evmetatron.evfunnytest.enumerable.TestType
@@ -83,11 +79,7 @@ class ScoreTestHandler(
         return SendMessageAdapter(
             chatId = inputAdapter.chatId,
             clearButtonsLater = true,
-            text = listOf(
-                UnderlineSelection(addedMessage),
-                DefaultSelection("\n\n"),
-                DefaultSelection(question.question)
-            ),
+            text = "[u]$addedMessage[/u]\n\n${question.question}",
             buttons = question.variables.chunked(DEFAULT_CHUNK)
                 .map { chunkedVariable ->
                     chunkedVariable.map { variable ->
@@ -130,33 +122,18 @@ class ScoreTestHandler(
             score >= result.from && score <= (result.to ?: Int.MAX_VALUE)
         }
 
-        val answerResults = mappedAnswers.flatMap { (answer, question) ->
+        val answerResults = mappedAnswers.joinToString(separator = "") { (answer, question) ->
             val yourAnswer = question.variables.first { it.id == answer.answer.toLong() }
 
-            listOf(
-                DefaultSelection("\n\n\n\n"),
-                BoldSelection(QUESTION_LABEL_TEXT),
-                DefaultSelection(question.question),
-                DefaultSelection("\n\n"),
-                BoldSelection(ANSWER_LABEL_TEXT),
-                DefaultSelection(yourAnswer.variable),
-                DefaultSelection("\n\n"),
-                ItalicSelection(
-                    yourAnswer.isTrue.takeIf { it }?.let { ANSWER_IS_TRUE_TEXT }
-                        ?: ANSWER_IS_FALSE_TEXT
-                ),
-                ItalicSelection(" (${question.description})"),
-            )
+            val answerText = yourAnswer.isTrue.takeIf { it }?.let { ANSWER_IS_TRUE_TEXT }
+                ?: ANSWER_IS_FALSE_TEXT
+
+            "\n\n\n\n[b]$QUESTION_LABEL_TEXT[/b]${question.question}\n\n[b]$ANSWER_LABEL_TEXT[/b]" +
+                "${yourAnswer.variable}\n\n[i]$answerText (${question.description})[/i]"
         }
 
         currentTestService.removeCurrentTest(replacedCurrentTest.userId)
 
-        return inputAdapter.toSendMessage(
-            listOf(
-                BoldSelection(TEST_DONE_TEXT),
-                DefaultSelection("\n\n"),
-                DefaultSelection(result.result),
-            ) + answerResults,
-        )
+        return inputAdapter.toSendMessage("[b]$TEST_DONE_TEXT[/b]\n\n${result.result}$answerResults")
     }
 }

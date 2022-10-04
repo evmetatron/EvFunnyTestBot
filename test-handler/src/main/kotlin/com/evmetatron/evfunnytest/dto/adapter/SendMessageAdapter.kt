@@ -5,11 +5,9 @@
 
 package com.evmetatron.evfunnytest.dto.adapter
 
-import com.evmetatron.evfunnytest.dto.adapter.textselection.TextSelection
-
 data class SendMessageAdapter(
     override val chatId: Long,
     override val clearButtonsLater: Boolean = false,
-    val text: List<TextSelection>? = null,
+    val text: String? = null,
     val buttons: List<List<ButtonAdapter>>? = null,
 ) : MessageAdapter

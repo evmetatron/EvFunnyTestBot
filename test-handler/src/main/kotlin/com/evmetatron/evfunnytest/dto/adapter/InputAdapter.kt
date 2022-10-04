@@ -5,8 +5,6 @@
 
 package com.evmetatron.evfunnytest.dto.adapter
 
-import com.evmetatron.evfunnytest.dto.adapter.textselection.DefaultSelection
-import com.evmetatron.evfunnytest.dto.adapter.textselection.TextSelection
 import com.evmetatron.evfunnytest.dto.button.BaseButton
 import com.evmetatron.evfunnytest.enumerable.BotCommand
 
@@ -18,18 +16,10 @@ data class InputAdapter(
     val button: BaseButton?,
     val command: BotCommand?,
 ) {
-    fun toSendMessage(vararg text: TextSelection): SendMessageAdapter =
-        toSendMessage(text.toList())
-
-    fun toSendMessage(text: List<TextSelection>): SendMessageAdapter =
+    fun toSendMessage(text: String): SendMessageAdapter =
         SendMessageAdapter(
             chatId = chatId,
             text = text,
-        )
-
-    fun toSendMessageDefault(text: String): SendMessageAdapter =
-        toSendMessage(
-            DefaultSelection(text),
         )
 
     fun isMessageOnly(): Boolean =

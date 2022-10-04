@@ -67,7 +67,7 @@ internal class ExitTestHandlerTest {
         val currentTestEntity = null
         val context = HandlerContext()
 
-        val expected = inputAdapter.toSendMessageDefault(ExitTestHandler.TEST_NOT_STARTED_TEXT)
+        val expected = inputAdapter.toSendMessage(ExitTestHandler.TEST_NOT_STARTED_TEXT)
 
         exitTestHandler.getObject(inputAdapter, currentTestEntity, context) shouldBe expected
 
@@ -87,7 +87,7 @@ internal class ExitTestHandlerTest {
 
         every { testService.getTest(currentTestEntity.testId) } returns testEntity
 
-        val expected = inputAdapter.toSendMessageDefault(
+        val expected = inputAdapter.toSendMessage(
             ExitTestHandler.TEST_EXIT_TEXT.replace("{test}", testEntity.name),
         )
 

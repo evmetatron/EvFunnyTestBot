@@ -9,9 +9,6 @@ import com.evmetatron.evfunnytest.dto.adapter.ButtonAdapter
 import com.evmetatron.evfunnytest.dto.adapter.InputAdapter
 import com.evmetatron.evfunnytest.dto.adapter.MessageAdapter
 import com.evmetatron.evfunnytest.dto.adapter.SendMessageAdapter
-import com.evmetatron.evfunnytest.dto.adapter.textselection.BoldSelection
-import com.evmetatron.evfunnytest.dto.adapter.textselection.DefaultSelection
-import com.evmetatron.evfunnytest.dto.adapter.textselection.ItalicSelection
 import com.evmetatron.evfunnytest.dto.button.GetTestButton
 import com.evmetatron.evfunnytest.dto.button.StartTestButton
 import com.evmetatron.evfunnytest.dto.context.HandlerContext
@@ -47,15 +44,11 @@ class GetTestClickHandler(
         val getTestButton = inputAdapter.button?.toConcreteButton() as GetTestButton
 
         val test = testService.getTest(getTestButton.testId)
-            ?: return inputAdapter.toSendMessageDefault(TEST_NOT_FOUND)
+            ?: return inputAdapter.toSendMessage(TEST_NOT_FOUND)
 
         return SendMessageAdapter(
             chatId = inputAdapter.chatId,
-            text = listOf(
-                BoldSelection(test.name),
-                DefaultSelection("\n\n"),
-                ItalicSelection(test.description),
-            ),
+            text = "[b]${test.name}[/b]\n\n[i]${test.description}[/i]",
             buttons = listOf(
                 listOf(
                     ButtonAdapter(

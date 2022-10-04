@@ -7,7 +7,6 @@ package com.evmetatron.evfunnytest.handler.input
 
 import com.evmetatron.evfunnytest.dto.adapter.ButtonAdapter
 import com.evmetatron.evfunnytest.dto.adapter.InputAdapter
-import com.evmetatron.evfunnytest.dto.adapter.textselection.DefaultSelection
 import com.evmetatron.evfunnytest.dto.button.GetTestButton
 import com.evmetatron.evfunnytest.dto.button.PageButton
 import com.evmetatron.evfunnytest.dto.context.HandlerContext
@@ -110,14 +109,10 @@ internal class ListCommandHandlerTest {
 
         val expected = createSendMessageAdapter(
             chatId = inputAdapter.chatId,
-            text = listOf(
-                DefaultSelection(
-                    text = ListCommandHandler.HELLO_TEXT.replace(
-                        "{user}",
-                        inputAdapter.user.toName(),
-                    ).trimIndent()
-                )
-            ),
+            text = ListCommandHandler.HELLO_TEXT.replace(
+                "{user}",
+                inputAdapter.user.toName(),
+            ).trimIndent(),
             buttons = tests.take(ListCommandHandler.DEFAULT_LIMIT).chunked(ListCommandHandler.DEFAULT_CHUNK)
                 .map { chunkTests ->
                     chunkTests.map { test ->
