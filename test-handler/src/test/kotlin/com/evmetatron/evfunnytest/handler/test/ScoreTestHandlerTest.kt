@@ -8,10 +8,6 @@ package com.evmetatron.evfunnytest.handler.test
 import com.evmetatron.evfunnytest.dto.adapter.ButtonAdapter
 import com.evmetatron.evfunnytest.dto.adapter.InputAdapter
 import com.evmetatron.evfunnytest.dto.adapter.SendMessageAdapter
-import com.evmetatron.evfunnytest.dto.adapter.textselection.BoldSelection
-import com.evmetatron.evfunnytest.dto.adapter.textselection.DefaultSelection
-import com.evmetatron.evfunnytest.dto.adapter.textselection.ItalicSelection
-import com.evmetatron.evfunnytest.dto.adapter.textselection.UnderlineSelection
 import com.evmetatron.evfunnytest.dto.button.StartTestButton
 import com.evmetatron.evfunnytest.dto.button.TestVariableButton
 import com.evmetatron.evfunnytest.dto.context.HandlerContext
@@ -104,12 +100,11 @@ internal class ScoreTestHandlerTest {
         every { testScoreService.getTest(currentTestEntity.testId) } returns null
 
         scoreTestHandler.getObject(inputAdapter, currentTestEntity, context) shouldBe
-            inputAdapter.toSendMessageDefault(AbstractTestHandler.TEST_NOT_FOUND_TEXT)
+            inputAdapter.toSendMessage(AbstractTestHandler.TEST_NOT_FOUND_TEXT)
 
         verify(exactly = 1) { currentTestService.removeCurrentTest(currentTestEntity.userId) }
     }
 
-    @Suppress("LongMethod")
     @Test
     fun `success getObject - send result`() {
         val inputAdapter = createInputAdapter(
@@ -121,9 +116,7 @@ internal class ScoreTestHandlerTest {
             userId = inputAdapter.user.id,
             type = TestType.SCORE,
             gender = null,
-            answers = listOf(
-                createCurrentAnswerEntity(num = 1, answer = "1"),
-            ),
+            answers = listOf(createCurrentAnswerEntity(num = 1, answer = "1")),
         )
         val context = HandlerContext()
 
@@ -134,11 +127,7 @@ internal class ScoreTestHandlerTest {
                     question = "Question 1",
                     description = "Description 1",
                     variables = listOf(
-                        createQuestionVariableScoreEntity(
-                            id = 1,
-                            variable = "Variable 1",
-                            isTrue = false,
-                        ),
+                        createQuestionVariableScoreEntity(id = 1, variable = "Variable 1", isTrue = false),
                     ),
                 ),
                 createQuestionScoreEntity(
@@ -146,11 +135,7 @@ internal class ScoreTestHandlerTest {
                     question = "Question 2",
                     description = "Description 2",
                     variables = listOf(
-                        createQuestionVariableScoreEntity(
-                            id = 2,
-                            variable = "Variable 2",
-                            isTrue = true,
-                        ),
+                        createQuestionVariableScoreEntity(id = 2, variable = "Variable 2", isTrue = true),
                     ),
                 ),
             ),
@@ -162,29 +147,13 @@ internal class ScoreTestHandlerTest {
         )
 
         val expected = inputAdapter.toSendMessage(
-            listOf(
-                BoldSelection(AbstractTestHandler.TEST_DONE_TEXT),
-                DefaultSelection("\n\n"),
-                DefaultSelection("Expected result"),
-                DefaultSelection("\n\n\n\n"),
-                BoldSelection(ScoreTestHandler.QUESTION_LABEL_TEXT),
-                DefaultSelection("Question 1"),
-                DefaultSelection("\n\n"),
-                BoldSelection(ScoreTestHandler.ANSWER_LABEL_TEXT),
-                DefaultSelection("Variable 1"),
-                DefaultSelection("\n\n"),
-                ItalicSelection(ScoreTestHandler.ANSWER_IS_FALSE_TEXT),
-                ItalicSelection(" (Description 1)"),
-                DefaultSelection("\n\n\n\n"),
-                BoldSelection(ScoreTestHandler.QUESTION_LABEL_TEXT),
-                DefaultSelection("Question 2"),
-                DefaultSelection("\n\n"),
-                BoldSelection(ScoreTestHandler.ANSWER_LABEL_TEXT),
-                DefaultSelection("Variable 2"),
-                DefaultSelection("\n\n"),
-                ItalicSelection(ScoreTestHandler.ANSWER_IS_TRUE_TEXT),
-                ItalicSelection(" (Description 2)"),
-            ),
+            "[b]${AbstractTestHandler.TEST_DONE_TEXT}[/b]\n\n" +
+                "Expected result\n\n\n\n[b]${ScoreTestHandler.QUESTION_LABEL_TEXT}[/b]Question 1\n\n" +
+                "[b]${ScoreTestHandler.ANSWER_LABEL_TEXT}[/b]" +
+                "Variable 1\n\n[i]${ScoreTestHandler.ANSWER_IS_FALSE_TEXT} (Description 1)[/i]\n\n\n\n" +
+                "[b]${ScoreTestHandler.QUESTION_LABEL_TEXT}[/b]Question 2\n\n" +
+                "[b]${ScoreTestHandler.ANSWER_LABEL_TEXT}[/b]Variable 2\n\n" +
+                "[i]${ScoreTestHandler.ANSWER_IS_TRUE_TEXT} (Description 2)[/i]",
         )
 
         every { testScoreService.getTest(currentTestEntity.testId) } returns test
@@ -232,11 +201,7 @@ internal class ScoreTestHandlerTest {
         val expected = SendMessageAdapter(
             chatId = inputAdapter.chatId,
             clearButtonsLater = true,
-            text = listOf(
-                UnderlineSelection(AbstractTestHandler.ANSWER_ACCEPTED_TEXT),
-                DefaultSelection("\n\n"),
-                DefaultSelection("Question 3")
-            ),
+            text = "[u]${AbstractTestHandler.ANSWER_ACCEPTED_TEXT}[/u]\n\nQuestion 3",
             buttons = variables.chunked(ScoreTestHandler.DEFAULT_CHUNK)
                 .map { chunkedVariable ->
                     chunkedVariable.map { variable ->
@@ -295,11 +260,7 @@ internal class ScoreTestHandlerTest {
         val expected = SendMessageAdapter(
             chatId = inputAdapter.chatId,
             clearButtonsLater = true,
-            text = listOf(
-                UnderlineSelection(addedMessage),
-                DefaultSelection("\n\n"),
-                DefaultSelection("Question 2")
-            ),
+            text = "[u]$addedMessage[/u]\n\nQuestion 2",
             buttons = variables.chunked(ScoreTestHandler.DEFAULT_CHUNK)
                 .map { chunkedVariable ->
                     chunkedVariable.map { variable ->

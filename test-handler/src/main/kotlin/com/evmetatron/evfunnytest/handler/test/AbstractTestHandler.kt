@@ -43,7 +43,7 @@ abstract class AbstractTestHandler(
     ): SendMessageAdapter {
         currentTestService.removeCurrentTest(currentTestEntity.userId)
 
-        return inputAdapter.toSendMessageDefault(TEST_NOT_FOUND_TEXT)
+        return inputAdapter.toSendMessage(TEST_NOT_FOUND_TEXT)
     }
 
     protected fun getAddedMessage(

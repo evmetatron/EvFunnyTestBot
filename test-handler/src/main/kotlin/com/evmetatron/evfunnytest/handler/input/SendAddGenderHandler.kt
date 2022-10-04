@@ -9,8 +9,6 @@ import com.evmetatron.evfunnytest.dto.adapter.ButtonAdapter
 import com.evmetatron.evfunnytest.dto.adapter.InputAdapter
 import com.evmetatron.evfunnytest.dto.adapter.MessageAdapter
 import com.evmetatron.evfunnytest.dto.adapter.SendMessageAdapter
-import com.evmetatron.evfunnytest.dto.adapter.textselection.DefaultSelection
-import com.evmetatron.evfunnytest.dto.adapter.textselection.UnderlineSelection
 import com.evmetatron.evfunnytest.dto.button.GenderButton
 import com.evmetatron.evfunnytest.dto.context.HandlerContext
 import com.evmetatron.evfunnytest.enumerable.ButtonType
@@ -49,10 +47,7 @@ class SendAddGenderHandler(
         return SendMessageAdapter(
             clearButtonsLater = true,
             chatId = inputAdapter.chatId,
-            text = listOf(
-                UnderlineSelection(text = "$addedText\n\n"),
-                DefaultSelection(text = SELECT_GENDER_TEXT),
-            ),
+            text = "[u]$addedText[/u]\n\n$SELECT_GENDER_TEXT",
             buttons = listOf(
                 listOf(
                     ButtonAdapter(

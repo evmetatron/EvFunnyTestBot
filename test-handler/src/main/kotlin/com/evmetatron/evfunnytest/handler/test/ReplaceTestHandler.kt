@@ -9,9 +9,6 @@ import com.evmetatron.evfunnytest.dto.adapter.ButtonAdapter
 import com.evmetatron.evfunnytest.dto.adapter.InputAdapter
 import com.evmetatron.evfunnytest.dto.adapter.MessageAdapter
 import com.evmetatron.evfunnytest.dto.adapter.SendMessageAdapter
-import com.evmetatron.evfunnytest.dto.adapter.textselection.BoldSelection
-import com.evmetatron.evfunnytest.dto.adapter.textselection.DefaultSelection
-import com.evmetatron.evfunnytest.dto.adapter.textselection.UnderlineSelection
 import com.evmetatron.evfunnytest.dto.context.HandlerContext
 import com.evmetatron.evfunnytest.enumerable.AllowGender
 import com.evmetatron.evfunnytest.enumerable.TestType
@@ -70,11 +67,7 @@ class ReplaceTestHandler(
 
             currentTestService.removeCurrentTest(replacedCurrentTest.userId)
 
-            return inputAdapter.toSendMessage(
-                BoldSelection(TEST_DONE_TEXT),
-                DefaultSelection("\n\n"),
-                DefaultSelection(result),
-            )
+            return inputAdapter.toSendMessage("[b]$TEST_DONE_TEXT[/b]\n\n$result")
         }
 
         val isMessageOnly = inputAdapter.isMessageOnly()
@@ -89,16 +82,12 @@ class ReplaceTestHandler(
             ?: isMessageOnly.takeIf { it }?.let { ANSWER_ACCEPTED_TEXT }
             ?: ERROR_TEXT
 
+        val question = test.questions.first { it.num == answerNum }.question
+
         return SendMessageAdapter(
             chatId = inputAdapter.chatId,
             clearButtonsLater = true,
-            text = listOf(
-                UnderlineSelection(addedMessage),
-                DefaultSelection("\n\n"),
-                BoldSelection(ANSWER_TO_QUESTION_TEXT),
-                DefaultSelection("\n\n"),
-                DefaultSelection(test.questions.first { it.num == answerNum }.question)
-            ),
+            text = "[u]$addedMessage[/u]\n\n[b]$ANSWER_TO_QUESTION_TEXT[/b]\n\n$question",
             buttons = listOf(
                 listOfNotNull(
                     (replacedCurrentTest.answers.isNotEmpty() || replacedCurrentTest.gender != null)

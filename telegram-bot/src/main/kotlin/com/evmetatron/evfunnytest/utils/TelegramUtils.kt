@@ -10,13 +10,10 @@ import com.evmetatron.evfunnytest.dto.adapter.InputAdapter
 import com.evmetatron.evfunnytest.dto.adapter.MessageAdapter
 import com.evmetatron.evfunnytest.dto.adapter.SendMessageAdapter
 import com.evmetatron.evfunnytest.dto.adapter.UserAdapter
-import com.evmetatron.evfunnytest.dto.adapter.textselection.BoldSelection
-import com.evmetatron.evfunnytest.dto.adapter.textselection.ItalicSelection
-import com.evmetatron.evfunnytest.dto.adapter.textselection.TextSelection
-import com.evmetatron.evfunnytest.dto.adapter.textselection.UnderlineSelection
 import com.evmetatron.evfunnytest.dto.button.BaseButton
 import com.evmetatron.evfunnytest.enumerable.BotCommand
 import com.evmetatron.evfunnytest.exception.TelegramPropertyException
+import com.evmetatron.evfunnytest.exception.TelegramSelectionTypeNotFound
 import com.google.gson.Gson
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
@@ -27,6 +24,11 @@ import org.telegram.telegrambots.meta.api.objects.MessageEntity
 import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton
+
+private const val BB_PATTERN = "\\[(\\w)\\](.*?)\\[/\\w\\]"
+private const val BB_INDEX_MATCH = 0
+private const val BB_INDEX_SELECTION = 1
+private const val BB_INDEX_WORD = 2
 
 fun Update.getChat(): Chat =
     message?.chat
@@ -61,14 +63,6 @@ fun Update.toInputAdapter(): InputAdapter =
         command = message?.text?.let { BotCommand.getCommandByInput(it) },
     )
 
-fun TextSelection.getTelegramType(): String? =
-    when (this) {
-        is BoldSelection -> EntityType.BOLD
-        is ItalicSelection -> EntityType.ITALIC
-        is UnderlineSelection -> "underline" // В EntityType нет такой константы
-        else -> null
-    }
-
 fun MessageAdapter.toTelegramMessage(): BotApiMethod<*> =
     when (this) {
         is SendMessageAdapter -> this.toTelegramMessage()
@@ -78,27 +72,29 @@ fun MessageAdapter.toTelegramMessage(): BotApiMethod<*> =
 private fun SendMessageAdapter.toTelegramMessage(): SendMessage =
     SendMessage().apply {
         val adapter = this@toTelegramMessage
-        var textOffset = 0
 
-        adapter.text?.let { texts ->
-            this.text = texts.joinToString(separator = "") { it.text }
+        adapter.text?.let { text ->
+            var garbageSize = 0
 
-            if (texts.isNotEmpty()) {
-                this.entities = texts.mapNotNull { selection ->
-                    val entity = selection.getTelegramType()?.let { type ->
-                        MessageEntity().apply {
-                            this.type = type
-                            this.text = selection.text
-                            this.offset = textOffset
-                            this.length = selection.text.length
-                        }
+            this.text = text.replace(BB_PATTERN.toRegex(), "$2")
+
+            this.entities = BB_PATTERN.toRegex().findAll(text).toList()
+                .map { matches ->
+                    val match = matches.groups[BB_INDEX_MATCH]!!
+                    val selection = matches.groups[BB_INDEX_SELECTION]!!.value
+                    val words = matches.groups[BB_INDEX_WORD]!!.value
+
+                    val entity = MessageEntity().apply {
+                        this.type = getTelegramType(selection)
+                        this.text = words
+                        this.offset = match.range.first - garbageSize
+                        this.length = words.length
                     }
 
-                    textOffset += selection.text.length
+                    garbageSize += (match.value.length - words.length)
 
                     entity
                 }
-            }
         }
 
         adapter.buttons?.let { buttons ->
@@ -136,4 +132,12 @@ private fun EditButtonsAdapter.toTelegramMessage(): EditMessageReplyMarkup =
 
         this.chatId = adapter.chatId.toString()
         this.messageId = adapter.messageId
+    }
+
+private fun getTelegramType(bb: String): String =
+    when (bb) {
+        "b" -> EntityType.BOLD
+        "i" -> EntityType.ITALIC
+        "u" -> "underline" // В EntityType нет такой константы
+        else -> throw TelegramSelectionTypeNotFound(bb)
     }

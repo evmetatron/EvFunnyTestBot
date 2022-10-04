@@ -7,9 +7,6 @@ package com.evmetatron.evfunnytest.handler.input
 
 import com.evmetatron.evfunnytest.dto.adapter.ButtonAdapter
 import com.evmetatron.evfunnytest.dto.adapter.InputAdapter
-import com.evmetatron.evfunnytest.dto.adapter.textselection.BoldSelection
-import com.evmetatron.evfunnytest.dto.adapter.textselection.DefaultSelection
-import com.evmetatron.evfunnytest.dto.adapter.textselection.ItalicSelection
 import com.evmetatron.evfunnytest.dto.button.GetTestButton
 import com.evmetatron.evfunnytest.dto.button.StartTestButton
 import com.evmetatron.evfunnytest.dto.context.HandlerContext
@@ -97,11 +94,7 @@ internal class GetTestClickHandlerTest {
             testService.getTest(testId)
         } returns test
 
-        val text = listOf(
-            BoldSelection(test.name),
-            DefaultSelection("\n\n"),
-            ItalicSelection(test.description),
-        )
+        val text = "[b]${test.name}[/b]\n\n[i]${test.description}[/i]"
 
         val expected = createSendMessageAdapter(
             chatId = inputAdapter.chatId,
@@ -138,7 +131,7 @@ internal class GetTestClickHandlerTest {
             testService.getTest(testId)
         } returns null
 
-        val expected = inputAdapter.toSendMessageDefault(GetTestClickHandler.TEST_NOT_FOUND)
+        val expected = inputAdapter.toSendMessage(GetTestClickHandler.TEST_NOT_FOUND)
 
         getTestClickHandler.getObject(inputAdapter, currentTestEntity, context) shouldBe expected
 

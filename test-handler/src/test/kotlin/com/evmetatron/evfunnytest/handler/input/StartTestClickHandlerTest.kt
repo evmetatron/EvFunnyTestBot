@@ -126,7 +126,7 @@ internal class StartTestClickHandlerTest {
 
         every { testService.getTest(testId) } returns null
 
-        val expected = inputAdapter.toSendMessageDefault(GetTestClickHandler.TEST_NOT_FOUND)
+        val expected = inputAdapter.toSendMessage(GetTestClickHandler.TEST_NOT_FOUND)
 
         startTestClickHandler.getObject(inputAdapter, currentTestEntity, context) shouldBe expected
 

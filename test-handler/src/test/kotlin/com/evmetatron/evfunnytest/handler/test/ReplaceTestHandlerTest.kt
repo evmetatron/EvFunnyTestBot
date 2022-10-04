@@ -8,9 +8,6 @@ package com.evmetatron.evfunnytest.handler.test
 import com.evmetatron.evfunnytest.dto.adapter.ButtonAdapter
 import com.evmetatron.evfunnytest.dto.adapter.InputAdapter
 import com.evmetatron.evfunnytest.dto.adapter.SendMessageAdapter
-import com.evmetatron.evfunnytest.dto.adapter.textselection.BoldSelection
-import com.evmetatron.evfunnytest.dto.adapter.textselection.DefaultSelection
-import com.evmetatron.evfunnytest.dto.adapter.textselection.UnderlineSelection
 import com.evmetatron.evfunnytest.dto.context.HandlerContext
 import com.evmetatron.evfunnytest.enumerable.ButtonType
 import com.evmetatron.evfunnytest.enumerable.Gender
@@ -112,7 +109,7 @@ internal class ReplaceTestHandlerTest {
         every { testReplaceService.getTest(currentTestEntity.testId) } returns null
 
         replaceTestHandler.getObject(inputAdapter, currentTestEntity, context) shouldBe
-            inputAdapter.toSendMessageDefault(AbstractTestHandler.TEST_NOT_FOUND_TEXT)
+            inputAdapter.toSendMessage(AbstractTestHandler.TEST_NOT_FOUND_TEXT)
 
         verify(exactly = 1) { currentTestService.removeCurrentTest(currentTestEntity.userId) }
     }
@@ -155,9 +152,8 @@ internal class ReplaceTestHandlerTest {
         )
 
         val expected = inputAdapter.toSendMessage(
-            BoldSelection(AbstractTestHandler.TEST_DONE_TEXT),
-            DefaultSelection("\n\n"),
-            DefaultSelection("вот Ответ Б и Ответ В так Ответ Б без Ответ Г в Ответ Д над Ответ А"),
+            "[b]${AbstractTestHandler.TEST_DONE_TEXT}[/b]\n\n" +
+                "вот Ответ Б и Ответ В так Ответ Б без Ответ Г в Ответ Д над Ответ А"
         )
 
         every { testReplaceService.getTest(currentTestEntity.testId) } returns test
@@ -201,13 +197,9 @@ internal class ReplaceTestHandlerTest {
         val expected = SendMessageAdapter(
             chatId = inputAdapter.chatId,
             clearButtonsLater = true,
-            text = listOf(
-                UnderlineSelection(AbstractTestHandler.ANSWER_ACCEPTED_TEXT),
-                DefaultSelection("\n\n"),
-                BoldSelection(ReplaceTestHandler.ANSWER_TO_QUESTION_TEXT),
-                DefaultSelection("\n\n"),
-                DefaultSelection(test.questions.first { it.num == answerNum }.question)
-            ),
+            text = "[u]${AbstractTestHandler.ANSWER_ACCEPTED_TEXT}[/u]\n\n" +
+                "[b]${ReplaceTestHandler.ANSWER_TO_QUESTION_TEXT}[/b]\n\n" +
+                test.questions.first { it.num == answerNum }.question,
             buttons = listOf(
                 listOfNotNull(
                     ButtonAdapter.createCancelAnswerButton(),
@@ -251,13 +243,8 @@ internal class ReplaceTestHandlerTest {
         val expected = SendMessageAdapter(
             chatId = inputAdapter.chatId,
             clearButtonsLater = true,
-            text = listOf(
-                UnderlineSelection(addedMessage),
-                DefaultSelection("\n\n"),
-                BoldSelection(ReplaceTestHandler.ANSWER_TO_QUESTION_TEXT),
-                DefaultSelection("\n\n"),
-                DefaultSelection(test.questions.first { it.num == answerNum }.question)
-            ),
+            text = "[u]$addedMessage[/u]\n\n[b]${ReplaceTestHandler.ANSWER_TO_QUESTION_TEXT}[/b]\n\n" +
+                test.questions.first { it.num == answerNum }.question,
             buttons = listOf(
                 listOfNotNull(
                     ButtonAdapter.createCancelAnswerButton(),

@@ -48,7 +48,7 @@ class StartTestClickHandler(
         }
 
         val test = testService.getTest(startTestButton.testId)
-            ?: return inputAdapter.toSendMessageDefault(TEST_NOT_FOUND)
+            ?: return inputAdapter.toSendMessage(TEST_NOT_FOUND)
 
         val createdCurrentTest = currentTestService.createCurrentTest(inputAdapter.user.id, test)
 

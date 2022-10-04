@@ -3,8 +3,6 @@
  * Репозиторий приложения: https://github.com/evmetatron/EvFunnyTestBot
  */
 
-package com.evmetatron.evfunnytest.dto.adapter.textselection
+package com.evmetatron.evfunnytest.exception
 
-interface TextSelection {
-    val text: String
-}
+class TelegramSelectionTypeNotFound(bb: String) : InternalLogicException("Не удалось тип выделения текста '$bb'")

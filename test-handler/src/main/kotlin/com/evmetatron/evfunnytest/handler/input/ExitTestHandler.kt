@@ -41,13 +41,13 @@ class ExitTestHandler(
         context: HandlerContext,
     ): MessageAdapter {
         if (currentTestEntity == null) {
-            return inputAdapter.toSendMessageDefault(TEST_NOT_STARTED_TEXT)
+            return inputAdapter.toSendMessage(TEST_NOT_STARTED_TEXT)
         }
 
         val test = testService.getTest(currentTestEntity.testId)
 
         currentTestService.removeCurrentTest(currentTestEntity.userId)
 
-        return inputAdapter.toSendMessageDefault(TEST_EXIT_TEXT.replace("{test}", test?.name ?: ""))
+        return inputAdapter.toSendMessage(TEST_EXIT_TEXT.replace("{test}", test?.name ?: ""))
     }
 }
