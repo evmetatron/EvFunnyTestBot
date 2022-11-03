@@ -53,6 +53,6 @@ jobs:
         with:  
           local: telegram-bot/build/libs/telegram-bot.jar
           remote: /home/evfunnytest/builds/evfunnytest.jar  
-          host: ${{ env.SSH_HOST }}
-          username: ${{ env.SSH_USER }}
-          password: ${{ env.SSH_PASSWORD }}
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
