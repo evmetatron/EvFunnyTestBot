@@ -36,10 +36,9 @@ jobs:
           name: java-app
 
       - name: Deploy to remote  
-        uses: alinz/ssh-scp-action@master
+        uses: garygrossgarten/github-action-ssh@master
         with:  
           source: "telegram-bot/build/libs/telegram-bot.jar"
           host: ${{ secrets.SSH_HOST }}
-          user: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 22
+          username: ${{ secrets.SSH_USER }}
+          privateKey: ${{ secrets.SSH_PRIVATE_KEY }}
