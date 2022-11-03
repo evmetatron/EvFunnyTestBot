@@ -36,7 +36,7 @@ jobs:
           name: java-app
 
       - name: Deploy to remote  
-        uses: garygrossgarten/github-action-ssh@master
+        uses: garygrossgarten/github-action-ssh@release
         with:  
           source: "telegram-bot/build/libs/telegram-bot.jar"
           host: ${{ secrets.SSH_HOST }}
