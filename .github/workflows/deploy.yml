@@ -22,7 +22,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Build with Gradle
-        run: ./gradlew telegram-bot:build
+        run: ./gradlew telegram-bot:assemble
         
       - name: read-dir
         run: ls -l -R .
