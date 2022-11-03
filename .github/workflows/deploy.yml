@@ -31,7 +31,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: java-app
-          path: build/*/*.jar
+          path: '${{ github.workspace }}/telegram-bot/build/libs/*.jar'
 
   deploy:
     permissions:
@@ -51,7 +51,7 @@ jobs:
       - name: Deploy to remote  
         uses: garygrossgarten/github-action-scp@release  
         with:  
-          local: build/libs/evfunnytest-0.0.1-SNAPSHOT-plain.jar
+          local: telegram-bot/build/libs/telegram-bot.jar
           remote: /home/evfunnytest/builds/evfunnytest.jar  
           host: $  
           username: $  
