@@ -9,9 +9,9 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
-
+    
     steps:
       - uses: actions/checkout@v3
 
@@ -23,26 +23,13 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew telegram-bot:assemble
-        
-      - name: read-dir
-        run: ls -l -R .
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
         with:
           name: java-app
-          path: '${{ github.workspace }}/telegram-bot/build/libs/*.jar'
-
-  deploy:
-    permissions:
-      contents: none
-    runs-on: ubuntu-latest
-    needs: build
-    environment:
-      name: 'Development'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+          path: '${{ github.workspace }}/telegram-bot/build/libs/telegram-bot.jar'
     
-    steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v3
         with:
