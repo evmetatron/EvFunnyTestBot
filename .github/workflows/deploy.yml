@@ -25,7 +25,7 @@ jobs:
         run: ./gradlew telegram-bot:bootJar
         
       - name: read-dir
-        run: ls -l .
+        run: ls -l -R .
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
