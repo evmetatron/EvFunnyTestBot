@@ -28,7 +28,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: java-app
-          path: build/libs/evfunnytest-0.0.1-SNAPSHOT-plain.jar
+          path: build/*/*.jar
 
   deploy:
     permissions:
