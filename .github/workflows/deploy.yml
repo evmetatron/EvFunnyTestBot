@@ -40,6 +40,6 @@ jobs:
         with:  
           source: "telegram-bot/build/libs/telegram-bot.jar"
           host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
+          user: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
