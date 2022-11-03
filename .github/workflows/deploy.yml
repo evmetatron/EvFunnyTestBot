@@ -36,7 +36,7 @@ jobs:
           name: java-app
 
       - name: Deploy to remote  
-        uses: appleboy/scp-action@master
+        uses: alinz/ssh-scp-action@master
         with:  
           source: "telegram-bot/build/libs/telegram-bot.jar"
           host: ${{ secrets.SSH_HOST }}
