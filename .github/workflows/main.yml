@@ -33,6 +33,8 @@ jobs:
     needs: analyse
     
     steps:
+      - uses: actions/checkout@v3
+      
       - name: Compile telegram bot  
         run: ./gradlew telegram-bot:assemble
         
