@@ -25,7 +25,7 @@ jobs:
         uses: mdallasanta/ssh-scp-deploy@main
         with:  
           local: README.md
-          remote: /home/evfunnytest/builds/evfunnytest.jar  
+          remote: /home/evfunnytest/telegram-bot.jar  
           host: ${{ secrets.SSH_HOST }}
           user: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
