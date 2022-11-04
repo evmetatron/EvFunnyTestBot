@@ -22,10 +22,10 @@ jobs:
      #   run: ./gradlew telegram-bot:assemble
   
       - name: Deploy to remote  
-        uses: garygrossgarten/github-action-scp@release  
+        uses: mdallasanta/ssh-scp-deploy@main
         with:  
           local: README.md
           remote: /home/evfunnytest/builds/evfunnytest.jar  
           host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          privateKey: ${{ secrets.SSH_PRIVATE_KEY }}
+          user: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
