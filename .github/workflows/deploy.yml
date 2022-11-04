@@ -28,4 +28,4 @@ jobs:
           remote: /home/evfunnytest/builds/evfunnytest.jar  
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
-          privateKey: ${{ secrets.SSH_PRIVATE_KEY }}
+          password: ${{ secrets.SSH_PASSWORD }}
