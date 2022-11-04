@@ -18,13 +18,13 @@ jobs:
           java-version: '11'  
           distribution: 'temurin'  
   
-      - name: Assembly  
-        run: ./gradlew telegram-bot:assemble
+     # - name: Assembly  
+     #   run: ./gradlew telegram-bot:assemble
   
       - name: Deploy to remote  
         uses: garygrossgarten/github-action-scp@release  
         with:  
-          local: telegram-bot/build/libs/telegram-bot.jar
+          local: README.md
           remote: /home/evfunnytest/builds/evfunnytest.jar  
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
