@@ -29,3 +29,5 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           user: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          pre_upload: service evfunnytest stop
+          post_upload: service evfunnytest start
