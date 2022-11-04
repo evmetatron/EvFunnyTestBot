@@ -29,5 +29,5 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           user: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          pre_upload: /usr/bin/systemctl stop evfunnytest.service | rm /home/evfunnytest/telegram-bot.jar
-          post_upload: /usr/bin/systemctl start evfunnytest.service
+          pre_upload: sudo /usr/bin/systemctl stop evfunnytest.service | rm /home/evfunnytest/telegram-bot.jar
+          post_upload: sudo /usr/bin/systemctl start evfunnytest.service
