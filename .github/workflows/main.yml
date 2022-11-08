@@ -49,11 +49,11 @@ jobs:
       - name: Deploy 
         uses: mdallasanta/ssh-scp-deploy@main
         with:  
-          local: telegram-bot/build/libs/telegram-bot.jar
-          remote: /home/evfunnytest/telegram-bot.jar  
+          local: telegram-bot/build/libs/*.jar
+          remote: ~/  
           host: ${{ secrets.SSH_HOST }}
           user: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          pre_upload: sudo /usr/bin/systemctl stop evfunnytest.service | rm /home/evfunnytest/telegram-bot.jar
-          post_upload: sudo /usr/bin/systemctl start evfunnytest.service
+          pre_upload: bash ~/destroy.sh
+          post_upload: bash ~/up.sh
     
