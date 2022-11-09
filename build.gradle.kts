@@ -29,6 +29,7 @@ subprojects {
 
 	repositories {
 		mavenCentral()
+		maven ( url = "https://jitpack.io" )
 	}
 
 	dependencies {
@@ -59,7 +60,6 @@ subprojects {
 			"$rootDir/test-handler/src",
 			"$rootDir/telegram-bot/src",
 			"$rootDir/test-settings/src",
-			"$rootDir/settings/src",
 		)
 		config = files("$rootDir/detekt/detekt.yaml")
 		buildUponDefaultConfig = true
