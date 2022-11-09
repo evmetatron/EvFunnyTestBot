@@ -1,11 +1,11 @@
 description = "test-handler"
 
 dependencies {
-    implementation(project(":settings"))
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.springframework.data:spring-data-redis")
     implementation("redis.clients:jedis")
     implementation("org.flywaydb:flyway-core")
+    implementation("com.github.evmetatron:spring-kotlin-chain-of-responsibility:1.0")
 
     runtimeOnly("org.postgresql:postgresql")
 
