@@ -57,9 +57,9 @@ subprojects {
 
 	detekt {
 		source = files(
-			"$rootDir/test-handler/src",
-			"$rootDir/telegram-bot/src",
-			"$rootDir/test-settings/src",
+			"$rootDir/modules/test-handler/src",
+			"$rootDir/modules/telegram-bot/src",
+			"$rootDir/modules/test-settings/src",
 		)
 		config = files("$rootDir/detekt/detekt.yaml")
 		buildUponDefaultConfig = true

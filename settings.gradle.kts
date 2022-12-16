@@ -1,5 +1,5 @@
 rootProject.name = "evfunnytest"
 
-include("test-handler")
-include("telegram-bot")
-include("test-settings")
+include(":modules:test-handler")
+include(":modules:telegram-bot")
+include(":modules:test-settings")
