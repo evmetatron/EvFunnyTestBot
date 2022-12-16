@@ -44,12 +44,12 @@ jobs:
           distribution: 'temurin'
       
       - name: Compile telegram bot  
-        run: ./gradlew telegram-bot:assemble
+        run: ./gradlew :modules:telegram-bot:assemble
         
-      - name: Deploy 
+      - name: Deploy telegram bot
         uses: mdallasanta/ssh-scp-deploy@main
         with:  
-          local: telegram-bot/build/libs/*.jar
+          local: modules/telegram-bot/build/libs/*.jar
           remote: ~/  
           host: ${{ secrets.SSH_HOST }}
           user: ${{ secrets.SSH_USER }}
