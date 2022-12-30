@@ -13,6 +13,7 @@ import com.evmetatron.evfunnytest.enumerable.ButtonType
 import com.evmetatron.evfunnytest.enumerable.TestType
 import com.evmetatron.evfunnytest.service.CurrentTestService
 import com.evmetatron.evfunnytest.storage.memory.entity.CurrentTestEntity
+import org.springframework.context.MessageSource
 
 abstract class AbstractTestHandler(
     protected val currentTestService: CurrentTestService,

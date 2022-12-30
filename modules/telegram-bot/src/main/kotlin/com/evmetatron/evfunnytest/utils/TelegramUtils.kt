@@ -15,6 +15,8 @@ import com.evmetatron.evfunnytest.enumerable.BotCommand
 import com.evmetatron.evfunnytest.exception.TelegramPropertyException
 import com.evmetatron.evfunnytest.exception.TelegramSelectionTypeNotFound
 import com.google.gson.Gson
+import java.util.Locale
+import org.springframework.context.MessageSource
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup
@@ -63,13 +65,13 @@ fun Update.toInputAdapter(): InputAdapter =
         command = message?.text?.let { BotCommand.getCommandByInput(it) },
     )
 
-fun MessageAdapter.toTelegramMessage(): BotApiMethod<*> =
+fun MessageAdapter.toTelegramMessage(messageSource: MessageSource): BotApiMethod<*> =
     when (this) {
-        is SendMessageAdapter -> this.toTelegramMessage()
-        is EditButtonsAdapter -> this.toTelegramMessage()
+        is SendMessageAdapter -> this.toTelegramMessage(messageSource)
+        is EditButtonsAdapter -> this.toTelegramMessage(messageSource)
     }
 
-private fun SendMessageAdapter.toTelegramMessage(): SendMessage =
+private fun SendMessageAdapter.toTelegramMessage(messageSource: MessageSource): SendMessage =
     SendMessage().apply {
         val adapter = this@toTelegramMessage
 
@@ -102,7 +104,7 @@ private fun SendMessageAdapter.toTelegramMessage(): SendMessage =
                 this.keyboard = buttons.map { rows ->
                     rows.map { button ->
                         InlineKeyboardButton().apply {
-                            this.text = button.text
+                            this.text = messageSource.getMessage(button.text, null, Locale.ENGLISH)
                             this.callbackData = button.button.toJson()
                         }
                     }
@@ -113,7 +115,7 @@ private fun SendMessageAdapter.toTelegramMessage(): SendMessage =
         this.chatId = adapter.chatId.toString()
     }
 
-private fun EditButtonsAdapter.toTelegramMessage(): EditMessageReplyMarkup =
+private fun EditButtonsAdapter.toTelegramMessage(messageSource: MessageSource): EditMessageReplyMarkup =
     EditMessageReplyMarkup().apply {
         val adapter = this@toTelegramMessage
 
