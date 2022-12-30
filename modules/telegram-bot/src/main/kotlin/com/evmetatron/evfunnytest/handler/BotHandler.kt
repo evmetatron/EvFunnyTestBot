@@ -22,6 +22,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.context.MessageSource
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.telegram.telegrambots.bots.TelegramLongPollingBot
@@ -36,6 +37,7 @@ internal class BotHandler(
     private val telegramProperties: TelegramProperties,
     private val currentTestService: CurrentTestService,
     private val removeButtonsService: RemoveButtonsService,
+    private val messageSource: MessageSource,
     private val inputHandler: InputHandler?,
 ) : TelegramLongPollingBot() {
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
@@ -59,7 +61,7 @@ internal class BotHandler(
 
             val event = inputHandler?.getObject(input, currentTest, HandlerContext())
 
-            val message = event?.toTelegramMessage()
+            val message = event?.toTelegramMessage(messageSource)
 
             val messageId: Int? = when (message) {
                 is SendMessage -> execute(message).messageId
