@@ -19,7 +19,12 @@ jobs:
         uses: actions/setup-java@v3.12.0
         with:  
           java-version: '11'  
-          distribution: 'temurin'  
+          distribution: 'temurin'
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Run detekt
         run: ./gradlew detekt
