@@ -47,7 +47,7 @@ jobs:
         run: ./gradlew :modules:telegram-bot:assemble
         
       - name: Deploy telegram bot
-        uses: mdallasanta/ssh-scp-deploy@1.2.0
+        uses: mdallasanta/ssh-scp-deploy@v1.2.0
         with:  
           local: modules/telegram-bot/build/libs/*.jar
           remote: ~/  
