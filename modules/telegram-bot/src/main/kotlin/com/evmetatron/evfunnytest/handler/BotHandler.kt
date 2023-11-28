@@ -12,6 +12,7 @@ import com.evmetatron.evfunnytest.property.TelegramProperties
 import com.evmetatron.evfunnytest.service.CurrentTestService
 import com.evmetatron.evfunnytest.service.RemoveButtonsService
 import com.evmetatron.evfunnytest.storage.memory.entity.RemoveButtonsEntity
+import com.evmetatron.evfunnytest.utils.getChat
 import com.evmetatron.evfunnytest.utils.toInputAdapter
 import com.evmetatron.evfunnytest.utils.toTelegramMessage
 import com.evmetatron.evfunnytest.utils.toTelegramSendMessage
@@ -22,6 +23,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.context.MessageSource
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.telegram.telegrambots.bots.TelegramLongPollingBot
@@ -30,12 +32,14 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageRe
 import org.telegram.telegrambots.meta.api.objects.Message
 import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException
+import java.util.Locale
 
 @Component
 internal class BotHandler(
     private val telegramProperties: TelegramProperties,
     private val currentTestService: CurrentTestService,
     private val removeButtonsService: RemoveButtonsService,
+    private val messageSource: MessageSource,
     private val inputHandler: InputHandler?,
 ) : TelegramLongPollingBot() {
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
@@ -59,7 +63,7 @@ internal class BotHandler(
 
             val event = inputHandler?.getObject(input, currentTest, HandlerContext())
 
-            val message = event?.toTelegramMessage()
+            val message = event?.toTelegramMessage(messageSource)
 
             val messageId: Int? = when (message) {
                 is SendMessage -> execute(message).messageId
