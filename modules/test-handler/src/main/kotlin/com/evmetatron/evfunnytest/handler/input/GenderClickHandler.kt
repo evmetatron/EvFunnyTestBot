@@ -15,11 +15,14 @@ import com.evmetatron.evfunnytest.exception.InputHandlerNotFoundException
 import com.evmetatron.evfunnytest.exception.TestHandlerNotFoundException
 import com.evmetatron.evfunnytest.service.CurrentTestService
 import com.evmetatron.evfunnytest.storage.memory.entity.CurrentTestEntity
+import org.springframework.core.annotation.Order
+import org.springframework.stereotype.Component
 
+@Order(6)
+@Component
 class GenderClickHandler(
     private val currentTestService: CurrentTestService,
-    inputHandler: InputHandler?,
-) : AbstractInputHandler(inputHandler) {
+) : AbstractInputHandler() {
     override fun verify(
         inputAdapter: InputAdapter,
         currentTestEntity: CurrentTestEntity?,

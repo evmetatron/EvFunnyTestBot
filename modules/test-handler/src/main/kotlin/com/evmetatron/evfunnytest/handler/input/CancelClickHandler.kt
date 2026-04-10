@@ -12,11 +12,14 @@ import com.evmetatron.evfunnytest.enumerable.ButtonType
 import com.evmetatron.evfunnytest.exception.TestHandlerNotFoundException
 import com.evmetatron.evfunnytest.service.CurrentTestService
 import com.evmetatron.evfunnytest.storage.memory.entity.CurrentTestEntity
+import org.springframework.core.annotation.Order
+import org.springframework.stereotype.Component
 
+@Order(1)
+@Component
 class CancelClickHandler(
     private val currentTestService: CurrentTestService,
-    inputHandler: InputHandler?,
-) : AbstractInputHandler(inputHandler) {
+) : AbstractInputHandler() {
     override fun verify(
         inputAdapter: InputAdapter,
         currentTestEntity: CurrentTestEntity?,
@@ -37,7 +40,7 @@ class CancelClickHandler(
 
         currentTestService.replaceCurrentTest(updatedCurrentTest)
 
-        return inputHandler?.getObject(inputAdapter, updatedCurrentTest, context)
+        return inputHandler.getObject(inputAdapter, updatedCurrentTest, context)
             ?: throw TestHandlerNotFoundException()
     }
 }

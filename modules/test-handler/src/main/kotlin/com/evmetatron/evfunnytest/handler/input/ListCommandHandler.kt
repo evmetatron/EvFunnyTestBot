@@ -17,11 +17,14 @@ import com.evmetatron.evfunnytest.storage.memory.entity.CurrentTestEntity
 import com.evmetatron.evfunnytest.enumerable.BotCommand
 import com.evmetatron.evfunnytest.enumerable.ButtonType
 import com.evmetatron.evfunnytest.service.TestService
+import org.springframework.core.annotation.Order
+import org.springframework.stereotype.Component
 
+@Order(3)
+@Component
 class ListCommandHandler(
     private val testService: TestService,
-    inputHandler: InputHandler?,
-) : AbstractInputHandler(inputHandler) {
+) : AbstractInputHandler() {
     companion object {
         const val DEFAULT_LIMIT = 8
         const val DEFAULT_OFFSET = 0

@@ -16,12 +16,15 @@ import com.evmetatron.evfunnytest.service.CurrentTestService
 import com.evmetatron.evfunnytest.service.TestReplaceService
 import com.evmetatron.evfunnytest.storage.db.entity.TestReplaceViewEntity
 import com.evmetatron.evfunnytest.storage.memory.entity.CurrentTestEntity
+import org.springframework.core.annotation.Order
+import org.springframework.stereotype.Component
 
+@Order(1)
+@Component
 class ReplaceTestHandler(
     private val testReplaceService: TestReplaceService,
     currentTestService: CurrentTestService,
-    testHandler: TestHandler?,
-) : AbstractTestHandler(currentTestService, testHandler) {
+) : AbstractTestHandler(currentTestService) {
     companion object {
         const val ANSWER_TO_QUESTION_TEXT = "Ответь на вопрос"
         const val ERROR_TEXT = "Во время прохождения теста команды и клики по кнопкам " +

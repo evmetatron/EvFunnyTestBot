@@ -13,12 +13,15 @@ import com.evmetatron.evfunnytest.enumerable.ButtonType
 import com.evmetatron.evfunnytest.service.CurrentTestService
 import com.evmetatron.evfunnytest.service.TestService
 import com.evmetatron.evfunnytest.storage.memory.entity.CurrentTestEntity
+import org.springframework.core.annotation.Order
+import org.springframework.stereotype.Component
 
+@Order(2)
+@Component
 class ExitTestHandler(
     private val currentTestService: CurrentTestService,
     private val testService: TestService,
-    inputHandler: InputHandler?,
-) : AbstractInputHandler(inputHandler) {
+) : AbstractInputHandler() {
     companion object {
         const val TEST_NOT_STARTED_TEXT = "Запущенных тестов не найдено"
         const val TEST_EXIT_TEXT = "Тест \"{test}\" был завершен"

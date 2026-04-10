@@ -5,7 +5,7 @@ dependencies {
     implementation("org.springframework.data:spring-data-redis")
     implementation("redis.clients:jedis")
     implementation("org.flywaydb:flyway-core")
-    implementation("com.github.evmetatron:spring-kotlin-chain-of-responsibility:1.0")
+    implementation("io.github.evmetatron:spring-chain-of-responsibility:0.1.0")
 
     runtimeOnly("org.postgresql:postgresql")
 

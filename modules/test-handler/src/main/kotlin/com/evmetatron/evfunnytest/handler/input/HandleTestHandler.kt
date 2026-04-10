@@ -12,11 +12,14 @@ import com.evmetatron.evfunnytest.exception.CurrentTestNotFound
 import com.evmetatron.evfunnytest.exception.TestHandlerNotFoundException
 import com.evmetatron.evfunnytest.handler.test.TestHandler
 import com.evmetatron.evfunnytest.storage.memory.entity.CurrentTestEntity
+import org.springframework.core.annotation.Order
+import org.springframework.stereotype.Component
 
+@Order(8)
+@Component
 class HandleTestHandler(
     private val testHandler: TestHandler?,
-    inputHandler: InputHandler?,
-) : AbstractInputHandler(inputHandler) {
+) : AbstractInputHandler() {
     override fun verify(
         inputAdapter: InputAdapter,
         currentTestEntity: CurrentTestEntity?,
