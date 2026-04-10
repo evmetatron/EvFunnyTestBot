@@ -13,11 +13,14 @@ import com.evmetatron.evfunnytest.enumerable.ButtonType
 import com.evmetatron.evfunnytest.enumerable.TestType
 import com.evmetatron.evfunnytest.service.CurrentTestService
 import com.evmetatron.evfunnytest.storage.memory.entity.CurrentTestEntity
+import io.github.evmetatron.spring.cor.ChainNext
 
 abstract class AbstractTestHandler(
     protected val currentTestService: CurrentTestService,
-    private val testHandler: TestHandler?,
 ) : TestHandler {
+    @ChainNext
+    private lateinit var testHandler: TestHandler
+
     companion object {
         const val TEST_NOT_FOUND_TEXT = "Тест не найден и принудительно завершен"
         const val TEST_DONE_TEXT = "Тест завершен"

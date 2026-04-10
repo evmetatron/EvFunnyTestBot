@@ -15,11 +15,14 @@ import com.evmetatron.evfunnytest.dto.context.HandlerContext
 import com.evmetatron.evfunnytest.enumerable.ButtonType
 import com.evmetatron.evfunnytest.service.TestService
 import com.evmetatron.evfunnytest.storage.memory.entity.CurrentTestEntity
+import org.springframework.core.annotation.Order
+import org.springframework.stereotype.Component
 
+@Order(4)
+@Component
 class GetTestClickHandler(
     private val testService: TestService,
-    inputHandler: InputHandler?,
-) : AbstractInputHandler(inputHandler) {
+) : AbstractInputHandler() {
     companion object {
         const val BUTTON_TEXT = "Начать тест"
         const val TEST_NOT_FOUND = "Тест не найден"

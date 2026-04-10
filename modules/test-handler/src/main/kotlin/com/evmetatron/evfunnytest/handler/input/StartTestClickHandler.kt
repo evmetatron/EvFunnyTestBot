@@ -15,12 +15,15 @@ import com.evmetatron.evfunnytest.exception.TestHandlerNotFoundException
 import com.evmetatron.evfunnytest.service.CurrentTestService
 import com.evmetatron.evfunnytest.service.TestService
 import com.evmetatron.evfunnytest.storage.memory.entity.CurrentTestEntity
+import org.springframework.core.annotation.Order
+import org.springframework.stereotype.Component
 
+@Order(5)
+@Component
 class StartTestClickHandler(
     private val testService: TestService,
     private val currentTestService: CurrentTestService,
-    inputHandler: InputHandler?,
-) : AbstractInputHandler(inputHandler) {
+) : AbstractInputHandler() {
     companion object {
         const val TEST_NOT_FOUND = "Тест не найден"
     }

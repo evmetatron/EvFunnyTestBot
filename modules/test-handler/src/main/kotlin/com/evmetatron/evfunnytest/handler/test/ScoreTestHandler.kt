@@ -16,12 +16,15 @@ import com.evmetatron.evfunnytest.service.CurrentTestService
 import com.evmetatron.evfunnytest.service.TestScoreService
 import com.evmetatron.evfunnytest.storage.db.entity.TestScoreViewEntity
 import com.evmetatron.evfunnytest.storage.memory.entity.CurrentTestEntity
+import org.springframework.core.annotation.Order
+import org.springframework.stereotype.Component
 
+@Order(2)
+@Component
 class ScoreTestHandler(
     private val testScoreService: TestScoreService,
     currentTestService: CurrentTestService,
-    testHandler: TestHandler?,
-) : AbstractTestHandler(currentTestService, testHandler) {
+) : AbstractTestHandler(currentTestService) {
     companion object {
         const val DEFAULT_CHUNK = 2
         const val QUESTION_LABEL_TEXT = "Вопрос: "

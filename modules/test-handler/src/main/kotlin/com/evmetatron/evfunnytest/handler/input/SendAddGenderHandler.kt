@@ -14,10 +14,12 @@ import com.evmetatron.evfunnytest.dto.context.HandlerContext
 import com.evmetatron.evfunnytest.enumerable.ButtonType
 import com.evmetatron.evfunnytest.enumerable.Gender
 import com.evmetatron.evfunnytest.storage.memory.entity.CurrentTestEntity
+import org.springframework.core.annotation.Order
+import org.springframework.stereotype.Component
 
-class SendAddGenderHandler(
-    inputHandler: InputHandler?,
-) : AbstractInputHandler(inputHandler) {
+@Order(7)
+@Component
+class SendAddGenderHandler() : AbstractInputHandler() {
     companion object {
         const val START_TEST_TEXT = "Запущен тест"
         const val CANCEL_ANSWER_TEXT = "Ответ отменен"
