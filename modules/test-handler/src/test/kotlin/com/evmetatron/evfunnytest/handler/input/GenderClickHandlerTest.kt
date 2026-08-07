@@ -22,6 +22,8 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
+import org.junit.jupiter.api.BeforeEach
+import org.springframework.test.util.ReflectionTestUtils
 
 @ExtendWith(MockKExtension::class)
 internal class GenderClickHandlerTest {
@@ -33,6 +35,11 @@ internal class GenderClickHandlerTest {
 
     @InjectMockKs
     private lateinit var genderClickHandler: GenderClickHandler
+
+    @BeforeEach
+    fun setUp() {
+        ReflectionTestUtils.setField(genderClickHandler, "inputHandler", inputHandler)
+    }
 
     private companion object {
         @JvmStatic

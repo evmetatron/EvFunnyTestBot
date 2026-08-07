@@ -28,6 +28,8 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
+import org.junit.jupiter.api.BeforeEach
+import org.springframework.test.util.ReflectionTestUtils
 
 @ExtendWith(MockKExtension::class)
 internal class ReplaceTestHandlerTest {
@@ -42,6 +44,11 @@ internal class ReplaceTestHandlerTest {
 
     @InjectMockKs
     private lateinit var replaceTestHandler: ReplaceTestHandler
+
+    @BeforeEach
+    fun setUp() {
+        ReflectionTestUtils.setField(replaceTestHandler, "testHandler", testHandler)
+    }
 
     private companion object {
         @JvmStatic
