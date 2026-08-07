@@ -40,7 +40,7 @@ subprojects {
 
 		testImplementation("org.springframework.boot:spring-boot-starter-test")
 		testImplementation("io.kotest:kotest-runner-junit5:5.4.1")
-		testImplementation("io.mockk:mockk:1.12.5")
+		testImplementation("io.mockk:mockk:1.13.13")
 		testImplementation("org.junit.jupiter:junit-jupiter")
 		testImplementation("org.junit.jupiter:junit-jupiter-api")
 		testImplementation("org.junit.jupiter:junit-jupiter-engine")
@@ -78,5 +78,11 @@ subprojects {
 
 	tasks.withType<Test> {
 		useJUnitPlatform()
+		jvmArgs(
+			"--add-opens", "java.base/java.lang=ALL-UNNAMED",
+			"--add-opens", "java.base/java.lang.reflect=ALL-UNNAMED",
+			"--add-opens", "java.base/java.util=ALL-UNNAMED",
+			"--add-opens", "java.base/java.time=ALL-UNNAMED",
+		)
 	}
 }
