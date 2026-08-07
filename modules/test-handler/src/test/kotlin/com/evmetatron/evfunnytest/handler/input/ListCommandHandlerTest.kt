@@ -27,6 +27,8 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.EnumSource
 import org.junit.jupiter.params.provider.MethodSource
+import org.junit.jupiter.api.BeforeEach
+import org.springframework.test.util.ReflectionTestUtils
 
 @ExtendWith(MockKExtension::class)
 internal class ListCommandHandlerTest {
@@ -38,6 +40,11 @@ internal class ListCommandHandlerTest {
 
     @InjectMockKs
     private lateinit var listCommandHandler: ListCommandHandler
+
+    @BeforeEach
+    fun setUp() {
+        ReflectionTestUtils.setField(listCommandHandler, "inputHandler", inputHandler)
+    }
 
     private companion object {
         @JvmStatic

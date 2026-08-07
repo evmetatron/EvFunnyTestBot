@@ -18,6 +18,8 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.BeforeEach
+import org.springframework.test.util.ReflectionTestUtils
 
 @ExtendWith(MockKExtension::class)
 internal class ExitTestHandlerTest {
@@ -32,6 +34,11 @@ internal class ExitTestHandlerTest {
 
     @InjectMockKs
     private lateinit var exitTestHandler: ExitTestHandler
+
+    @BeforeEach
+    fun setUp() {
+        ReflectionTestUtils.setField(exitTestHandler, "inputHandler", inputHandler)
+    }
 
     @Test
     fun `verify false`() {

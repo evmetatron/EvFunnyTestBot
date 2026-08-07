@@ -18,6 +18,8 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
+import org.junit.jupiter.api.BeforeEach
+import org.springframework.test.util.ReflectionTestUtils
 
 @ExtendWith(MockKExtension::class)
 internal class HandleTestHandlerTest {
@@ -29,6 +31,11 @@ internal class HandleTestHandlerTest {
 
     @InjectMockKs
     private lateinit var handleTestHandler: HandleTestHandler
+
+    @BeforeEach
+    fun setUp() {
+        ReflectionTestUtils.setField(handleTestHandler, "inputHandler", inputHandler)
+    }
 
     private companion object {
         @JvmStatic
