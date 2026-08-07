@@ -6,7 +6,7 @@ import com.evmetatron.evfunnytest.dto.context.HandlerContext
 import com.evmetatron.evfunnytest.storage.memory.entity.CurrentTestEntity
 import io.github.evmetatron.spring.cor.ChainNext
 
-abstract class AbstractInputHandler() : InputHandler {
+abstract class AbstractInputHandler : InputHandler {
     @ChainNext
     protected lateinit var inputHandler: InputHandler
 

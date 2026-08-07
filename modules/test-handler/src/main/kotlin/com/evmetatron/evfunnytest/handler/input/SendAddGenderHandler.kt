@@ -12,9 +12,10 @@ import com.evmetatron.evfunnytest.storage.memory.entity.CurrentTestEntity
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 
+@Suppress("MagicNumber")
 @Order(7)
 @Component
-class SendAddGenderHandler() : AbstractInputHandler() {
+class SendAddGenderHandler : AbstractInputHandler() {
     companion object {
         const val START_TEST_TEXT = "Запущен тест"
         const val CANCEL_ANSWER_TEXT = "Ответ отменен"

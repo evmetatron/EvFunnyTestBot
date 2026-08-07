@@ -15,6 +15,7 @@ import com.evmetatron.evfunnytest.service.TestService
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 
+@Suppress("MagicNumber")
 @Order(3)
 @Component
 class ListCommandHandler(

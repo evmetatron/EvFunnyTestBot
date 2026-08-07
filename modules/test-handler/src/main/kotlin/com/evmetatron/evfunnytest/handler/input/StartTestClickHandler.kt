@@ -13,6 +13,7 @@ import com.evmetatron.evfunnytest.storage.memory.entity.CurrentTestEntity
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 
+@Suppress("MagicNumber")
 @Order(5)
 @Component
 class StartTestClickHandler(
