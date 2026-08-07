@@ -12,3 +12,9 @@ inline fun <reified T : Enum<T>> rndEnum(): T = T::class.java.enumConstants.let 
 }
 
 fun Date.toLocalDate(): LocalDate = toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+
+/**
+ * Оборачивает значение в Optional для мока Spring Data `findById(): Optional<T>`.
+ * Используется только на границе с MockK-стабами — сам Optional наружу не течёт.
+ */
+fun <T : Any> T?.asOptional(): Optional<T> = Optional.ofNullable(this)

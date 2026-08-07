@@ -9,7 +9,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import java.util.Optional
+import fixtures.asOptional
 
 @ExtendWith(MockKExtension::class)
 class TestReplaceServiceTest {
@@ -24,7 +24,7 @@ class TestReplaceServiceTest {
         val testId = 46L
         val expected = createTestReplaceViewEntity()
 
-        every { testReplaceViewRepository.findById(testId) } returns Optional.ofNullable(expected)
+        every { testReplaceViewRepository.findById(testId) } returns expected.asOptional()
 
         testReplaceService.getTest(testId) shouldBe expected
     }
