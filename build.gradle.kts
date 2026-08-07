@@ -2,16 +2,15 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 	id("java-test-fixtures")
-	id("io.gitlab.arturbosch.detekt") version "1.21.0"
+	id("io.gitlab.arturbosch.detekt") version "1.23.6"
 	id("org.springframework.boot") version "2.7.3"
 	id("io.spring.dependency-management") version "1.0.13.RELEASE"
-	kotlin("jvm") version "1.6.21"
-	kotlin("plugin.spring") version "1.6.21"
+	kotlin("jvm") version "1.9.23"
+	kotlin("plugin.spring") version "1.9.23"
 }
 
 group = "io.github.evmetatron"
 version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
 	mavenCentral()
@@ -27,6 +26,8 @@ subprojects {
 		plugin("org.jetbrains.kotlin.plugin.spring")
 	}
 
+	java.sourceCompatibility = JavaVersion.VERSION_17
+
 	repositories {
 		mavenCentral()
 	}
@@ -40,7 +41,7 @@ subprojects {
 
 		testImplementation("org.springframework.boot:spring-boot-starter-test")
 		testImplementation("io.kotest:kotest-runner-junit5:5.4.1")
-		testImplementation("io.mockk:mockk:1.12.5")
+		testImplementation("io.mockk:mockk:1.13.13")
 		testImplementation("org.junit.jupiter:junit-jupiter")
 		testImplementation("org.junit.jupiter:junit-jupiter-api")
 		testImplementation("org.junit.jupiter:junit-jupiter-engine")
@@ -65,18 +66,24 @@ subprojects {
 		autoCorrect = true
 
 		dependencies {
-			detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.21.0")
+			detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.6")
 		}
 	}
 
 	tasks.withType<KotlinCompile> {
 		kotlinOptions {
 			freeCompilerArgs = listOf("-Xjsr305=strict")
-			jvmTarget = JavaVersion.VERSION_11.toString()
+			jvmTarget = JavaVersion.VERSION_17.toString()
 		}
 	}
 
 	tasks.withType<Test> {
 		useJUnitPlatform()
+		jvmArgs(
+			"--add-opens", "java.base/java.lang=ALL-UNNAMED",
+			"--add-opens", "java.base/java.lang.reflect=ALL-UNNAMED",
+			"--add-opens", "java.base/java.util=ALL-UNNAMED",
+			"--add-opens", "java.base/java.time=ALL-UNNAMED",
+		)
 	}
 }

@@ -9,7 +9,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.data.repository.findByIdOrNull
+import java.util.Optional
 
 @ExtendWith(MockKExtension::class)
 internal class TestServiceTest {
@@ -37,7 +37,7 @@ internal class TestServiceTest {
 
         val expected = createTestEntity()
 
-        every { testRepository.findByIdOrNull(testId) } returns expected
+        every { testRepository.findById(testId) } returns Optional.ofNullable(expected)
 
         testService.getTest(testId) shouldBe expected
     }
