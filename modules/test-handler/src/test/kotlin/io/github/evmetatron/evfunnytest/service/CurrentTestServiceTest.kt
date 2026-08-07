@@ -11,7 +11,7 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import java.util.Optional
+import fixtures.asOptional
 
 @ExtendWith(MockKExtension::class)
 internal class CurrentTestServiceTest {
@@ -26,7 +26,7 @@ internal class CurrentTestServiceTest {
         val userId = 1L
         val expected = createCurrentTestEntity(userId = userId)
 
-        every { currentTestRepository.findById(userId) } returns Optional.ofNullable(expected)
+        every { currentTestRepository.findById(userId) } returns expected.asOptional()
 
         currentTestService.getCurrentTest(userId) shouldBe expected
     }

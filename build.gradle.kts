@@ -2,11 +2,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 	id("java-test-fixtures")
-	id("io.gitlab.arturbosch.detekt") version "1.23.6"
+	id("io.gitlab.arturbosch.detekt") version "1.23.8"
 	id("org.springframework.boot") version "2.7.3"
 	id("io.spring.dependency-management") version "1.0.13.RELEASE"
-	kotlin("jvm") version "1.9.23"
-	kotlin("plugin.spring") version "1.9.23"
+	kotlin("jvm") version "2.0.21"
+	kotlin("plugin.spring") version "2.0.21"
 }
 
 group = "io.github.evmetatron"
@@ -14,6 +14,15 @@ version = "0.0.1-SNAPSHOT"
 
 repositories {
 	mavenCentral()
+}
+
+// Корневой проект — чистый агрегатор модулей, своего @SpringBootApplication
+// у него нет и не должно быть, поэтому bootJar здесь тоже отключаем.
+tasks.named("bootJar") {
+	enabled = false
+}
+tasks.named("jar") {
+	enabled = true
 }
 
 subprojects {
@@ -66,7 +75,7 @@ subprojects {
 		autoCorrect = true
 
 		dependencies {
-			detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.6")
+			detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.8")
 		}
 	}
 
@@ -85,5 +94,17 @@ subprojects {
 			"--add-opens", "java.base/java.util=ALL-UNNAMED",
 			"--add-opens", "java.base/java.time=ALL-UNNAMED",
 		)
+	}
+
+	// bootJar (исполняемый jar) осмыслен только для приложения-точки-входа.
+	// test-handler и test-settings — библиотечные модули без @SpringBootApplication,
+	// им bootJar не нужен и без main-класса он падает.
+	if (name != "telegram-bot") {
+		tasks.named("bootJar") {
+			enabled = false
+		}
+		tasks.named("jar") {
+			enabled = true
+		}
 	}
 }
