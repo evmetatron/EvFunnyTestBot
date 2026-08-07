@@ -12,7 +12,7 @@ import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.data.repository.findByIdOrNull
+import java.util.Optional
 
 @ExtendWith(MockKExtension::class)
 internal class RemoveButtonsServiceTest {
@@ -63,7 +63,7 @@ internal class RemoveButtonsServiceTest {
         val removeButtons = createRemoveButtonsEntity(userId = userId)
         val expected = removeButtons.withMessageId(messageId)
 
-        every { removeButtonsRepository.findByIdOrNull(userId) } returns removeButtons
+        every { removeButtonsRepository.findById(userId) } returns Optional.ofNullable(removeButtons)
         every { removeButtonsRepository.save(expected) } returns expected
 
         removeButtonsService.registerMessage(userId, chatId, messageId)
@@ -82,7 +82,7 @@ internal class RemoveButtonsServiceTest {
             messageIds = listOf(messageId),
         )
 
-        every { removeButtonsRepository.findByIdOrNull(userId) } returns null
+        every { removeButtonsRepository.findById(userId) } returns Optional.empty()
         every { removeButtonsRepository.save(expected) } returns expected
 
         removeButtonsService.registerMessage(userId, chatId, messageId)
@@ -104,7 +104,7 @@ internal class RemoveButtonsServiceTest {
         val userId = 5L
         val expected = createRemoveButtonsEntity(userId = userId)
 
-        every { removeButtonsRepository.findByIdOrNull(userId) } returns expected
+        every { removeButtonsRepository.findById(userId) } returns Optional.ofNullable(expected)
 
         removeButtonsService.getByUserId(userId) shouldBe expected
     }

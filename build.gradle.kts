@@ -11,7 +11,6 @@ plugins {
 
 group = "io.github.evmetatron"
 version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_21
 
 repositories {
 	mavenCentral()
@@ -26,6 +25,8 @@ subprojects {
 		plugin("org.jetbrains.kotlin.jvm")
 		plugin("org.jetbrains.kotlin.plugin.spring")
 	}
+
+	java.sourceCompatibility = JavaVersion.VERSION_17
 
 	repositories {
 		mavenCentral()
@@ -72,7 +73,7 @@ subprojects {
 	tasks.withType<KotlinCompile> {
 		kotlinOptions {
 			freeCompilerArgs = listOf("-Xjsr305=strict")
-			jvmTarget = JavaVersion.VERSION_21.toString()
+			jvmTarget = JavaVersion.VERSION_17.toString()
 		}
 	}
 
