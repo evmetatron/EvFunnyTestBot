@@ -9,7 +9,7 @@ plugins {
 	kotlin("plugin.spring") version "1.6.21"
 }
 
-group = "com.evmetatron"
+group = "io.github.evmetatron"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_11
 

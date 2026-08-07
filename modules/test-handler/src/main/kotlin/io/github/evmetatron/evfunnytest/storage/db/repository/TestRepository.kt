@@ -1,0 +1,20 @@
+package io.github.evmetatron.evfunnytest.storage.db.repository
+
+import io.github.evmetatron.evfunnytest.storage.db.entity.TestEntity
+import org.springframework.data.jdbc.repository.query.Query
+import org.springframework.data.repository.CrudRepository
+
+interface TestRepository : CrudRepository<TestEntity, Long> {
+    @Query(
+        """
+            select *
+            from test
+            order by id
+            limit :limit offset :offset
+        """
+    )
+    fun findLimited(
+        limit: Int,
+        offset: Int,
+    ): List<TestEntity>
+}

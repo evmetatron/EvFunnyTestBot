@@ -1,19 +1,19 @@
 package fixtures
 
-import com.evmetatron.evfunnytest.enumerable.AllowGender
-import com.evmetatron.evfunnytest.enumerable.Gender
-import com.evmetatron.evfunnytest.enumerable.TestType
-import com.evmetatron.evfunnytest.storage.db.entity.QuestionReplaceEntity
-import com.evmetatron.evfunnytest.storage.db.entity.QuestionScoreEntity
-import com.evmetatron.evfunnytest.storage.db.entity.QuestionVariableScoreEntity
-import com.evmetatron.evfunnytest.storage.db.entity.ResultReplaceEntity
-import com.evmetatron.evfunnytest.storage.db.entity.ResultScoreEntity
-import com.evmetatron.evfunnytest.storage.db.entity.TestEntity
-import com.evmetatron.evfunnytest.storage.db.entity.TestReplaceViewEntity
-import com.evmetatron.evfunnytest.storage.db.entity.TestScoreViewEntity
-import com.evmetatron.evfunnytest.storage.memory.entity.CurrentAnswerEntity
-import com.evmetatron.evfunnytest.storage.memory.entity.CurrentTestEntity
-import com.evmetatron.evfunnytest.storage.memory.entity.RemoveButtonsEntity
+import io.github.evmetatron.evfunnytest.enumerable.AllowGender
+import io.github.evmetatron.evfunnytest.enumerable.Gender
+import io.github.evmetatron.evfunnytest.enumerable.TestType
+import io.github.evmetatron.evfunnytest.storage.db.entity.QuestionReplaceEntity
+import io.github.evmetatron.evfunnytest.storage.db.entity.QuestionScoreEntity
+import io.github.evmetatron.evfunnytest.storage.db.entity.QuestionVariableScoreEntity
+import io.github.evmetatron.evfunnytest.storage.db.entity.ResultReplaceEntity
+import io.github.evmetatron.evfunnytest.storage.db.entity.ResultScoreEntity
+import io.github.evmetatron.evfunnytest.storage.db.entity.TestEntity
+import io.github.evmetatron.evfunnytest.storage.db.entity.TestReplaceViewEntity
+import io.github.evmetatron.evfunnytest.storage.db.entity.TestScoreViewEntity
+import io.github.evmetatron.evfunnytest.storage.memory.entity.CurrentAnswerEntity
+import io.github.evmetatron.evfunnytest.storage.memory.entity.CurrentTestEntity
+import io.github.evmetatron.evfunnytest.storage.memory.entity.RemoveButtonsEntity
 
 fun testEntity5(): TestEntity =
     TestEntity(

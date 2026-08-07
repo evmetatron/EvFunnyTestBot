@@ -1,13 +1,13 @@
 package fixtures
 
-import com.evmetatron.evfunnytest.dto.adapter.ButtonAdapter
-import com.evmetatron.evfunnytest.dto.adapter.EditButtonsAdapter
-import com.evmetatron.evfunnytest.dto.adapter.InputAdapter
-import com.evmetatron.evfunnytest.dto.adapter.SendMessageAdapter
-import com.evmetatron.evfunnytest.dto.adapter.UserAdapter
-import com.evmetatron.evfunnytest.dto.button.BaseButton
-import com.evmetatron.evfunnytest.enumerable.BotCommand
-import com.evmetatron.evfunnytest.enumerable.ButtonType
+import io.github.evmetatron.evfunnytest.dto.adapter.ButtonAdapter
+import io.github.evmetatron.evfunnytest.dto.adapter.EditButtonsAdapter
+import io.github.evmetatron.evfunnytest.dto.adapter.InputAdapter
+import io.github.evmetatron.evfunnytest.dto.adapter.SendMessageAdapter
+import io.github.evmetatron.evfunnytest.dto.adapter.UserAdapter
+import io.github.evmetatron.evfunnytest.dto.button.BaseButton
+import io.github.evmetatron.evfunnytest.enumerable.BotCommand
+import io.github.evmetatron.evfunnytest.enumerable.ButtonType
 
 fun createInputAdapter(
     chatId: Long = faker.number().randomNumber(),

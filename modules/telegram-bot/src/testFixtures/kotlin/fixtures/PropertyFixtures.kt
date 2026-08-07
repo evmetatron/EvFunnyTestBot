@@ -1,6 +1,6 @@
 package fixtures
 
-import com.evmetatron.evfunnytest.property.TelegramProperties
+import io.github.evmetatron.evfunnytest.property.TelegramProperties
 
 fun createTelegramProperties(
     name: String = faker.name().username(),
