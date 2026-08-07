@@ -30,6 +30,7 @@ import org.telegram.telegrambots.meta.api.objects.Message
 
 @ExtendWith(MockKExtension::class)
 internal class BotHandlerTest {
+    @Suppress("UnusedPrivateProperty")
     @SpyK
     private var telegramProperties = createTelegramProperties()
 
