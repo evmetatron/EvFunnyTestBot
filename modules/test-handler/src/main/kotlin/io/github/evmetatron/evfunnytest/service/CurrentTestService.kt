@@ -1,0 +1,30 @@
+package io.github.evmetatron.evfunnytest.service
+
+import io.github.evmetatron.evfunnytest.storage.db.entity.TestEntity
+import io.github.evmetatron.evfunnytest.storage.memory.entity.CurrentTestEntity
+import io.github.evmetatron.evfunnytest.storage.memory.repository.CurrentTestRepository
+import org.springframework.data.repository.findByIdOrNull
+import org.springframework.stereotype.Component
+
+@Component
+class CurrentTestService(
+    private val currentTestRepository: CurrentTestRepository,
+) {
+    fun getCurrentTest(userId: Long): CurrentTestEntity? =
+        currentTestRepository.findByIdOrNull(userId)
+
+    fun createCurrentTest(userId: Long, testEntity: TestEntity): CurrentTestEntity =
+        CurrentTestEntity(
+            userId = userId,
+            testId = testEntity.id,
+            type = testEntity.type,
+            allowGender = testEntity.allowGender,
+        ).apply { currentTestRepository.save(this) }
+
+    fun removeCurrentTest(userId: Long) =
+        currentTestRepository.deleteById(userId)
+
+    fun replaceCurrentTest(currentTestEntity: CurrentTestEntity) {
+        currentTestRepository.save(currentTestEntity)
+    }
+}

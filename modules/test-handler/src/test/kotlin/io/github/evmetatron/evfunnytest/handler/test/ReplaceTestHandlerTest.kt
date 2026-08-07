@@ -1,0 +1,262 @@
+package io.github.evmetatron.evfunnytest.handler.test
+
+import io.github.evmetatron.evfunnytest.dto.adapter.ButtonAdapter
+import io.github.evmetatron.evfunnytest.dto.adapter.InputAdapter
+import io.github.evmetatron.evfunnytest.dto.adapter.SendMessageAdapter
+import io.github.evmetatron.evfunnytest.dto.context.HandlerContext
+import io.github.evmetatron.evfunnytest.enumerable.ButtonType
+import io.github.evmetatron.evfunnytest.enumerable.Gender
+import io.github.evmetatron.evfunnytest.enumerable.TestType
+import fixtures.createBaseButton
+import fixtures.createCurrentAnswerEntity
+import fixtures.createCurrentTestEntity
+import fixtures.createInputAdapter
+import fixtures.createQuestionReplaceEntity
+import fixtures.createResultReplaceEntity
+import fixtures.createSendMessageAdapter
+import fixtures.createTestReplaceViewEntity
+import io.github.evmetatron.evfunnytest.service.CurrentTestService
+import io.github.evmetatron.evfunnytest.service.TestReplaceService
+import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.impl.annotations.InjectMockKs
+import io.mockk.impl.annotations.MockK
+import io.mockk.junit5.MockKExtension
+import io.mockk.verify
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
+import org.junit.jupiter.api.BeforeEach
+import org.springframework.test.util.ReflectionTestUtils
+
+@ExtendWith(MockKExtension::class)
+internal class ReplaceTestHandlerTest {
+    @MockK
+    private lateinit var testReplaceService: TestReplaceService
+
+    @MockK(relaxed = true)
+    private lateinit var currentTestService: CurrentTestService
+
+    @MockK
+    private lateinit var testHandler: TestHandler
+
+    @InjectMockKs
+    private lateinit var replaceTestHandler: ReplaceTestHandler
+
+    @BeforeEach
+    fun setUp() {
+        ReflectionTestUtils.setField(replaceTestHandler, "testHandler", testHandler)
+    }
+
+    private companion object {
+        @JvmStatic
+        private fun successGetObjectProvider() =
+            listOf(
+                Arguments.of(
+                    createInputAdapter(
+                        text = null,
+                        button = createBaseButton(type = ButtonType.START_TEST),
+                    ),
+                    HandlerContext().withHandledStart(),
+                    AbstractTestHandler.STARTED_TEST_TEXT,
+                ),
+
+                Arguments.of(
+                    createInputAdapter(
+                        text = null,
+                        button = createBaseButton(type = ButtonType.SELECT_GENDER),
+                    ),
+                    HandlerContext(),
+                    AbstractTestHandler.ANSWER_ACCEPTED_TEXT,
+                ),
+
+                Arguments.of(
+                    createInputAdapter(
+                        text = null,
+                        button = createBaseButton(type = ButtonType.START_TEST),
+                    ),
+                    HandlerContext(),
+                    ReplaceTestHandler.ERROR_TEXT,
+                ),
+            )
+    }
+
+    @Test
+    fun `verify false`() {
+        val inputAdapter = createInputAdapter()
+        val currentTestEntity = createCurrentTestEntity(
+            type = TestType.SCORE,
+        )
+        val context = HandlerContext()
+
+        val sendMessage = createSendMessageAdapter()
+
+        every { testHandler.getObject(inputAdapter, currentTestEntity, context) } returns sendMessage
+
+        replaceTestHandler.getObject(inputAdapter, currentTestEntity, context) shouldBe sendMessage
+
+        verify(exactly = 1) { testHandler.getObject(inputAdapter, currentTestEntity, context) }
+    }
+
+    @Test
+    fun `fail getObject - test not found`() {
+        val inputAdapter = createInputAdapter()
+        val currentTestEntity = createCurrentTestEntity(
+            type = TestType.REPLACE,
+        )
+        val context = HandlerContext()
+
+        every { testReplaceService.getTest(currentTestEntity.testId) } returns null
+
+        replaceTestHandler.getObject(inputAdapter, currentTestEntity, context) shouldBe
+            inputAdapter.toSendMessage(AbstractTestHandler.TEST_NOT_FOUND_TEXT)
+
+        verify(exactly = 1) { currentTestService.removeCurrentTest(currentTestEntity.userId) }
+    }
+
+    @Test
+    fun `success getObject - send result`() {
+        val inputAdapter = createInputAdapter(
+            text = "Ответ А",
+            button = null,
+            command = null,
+        )
+        val currentTestEntity = createCurrentTestEntity(
+            userId = inputAdapter.user.id,
+            type = TestType.REPLACE,
+            gender = Gender.MALE,
+            answers = listOf(
+                createCurrentAnswerEntity(num = 1, answer = "Ответ Б"),
+                createCurrentAnswerEntity(num = 2, answer = "Ответ В"),
+                createCurrentAnswerEntity(num = 3, answer = "Ответ Г"),
+                createCurrentAnswerEntity(num = 4, answer = "Ответ Д"),
+            ),
+        )
+        val context = HandlerContext()
+
+        val test = createTestReplaceViewEntity(
+            questions = listOf(
+                createQuestionReplaceEntity(num = 1),
+                createQuestionReplaceEntity(num = 2),
+                createQuestionReplaceEntity(num = 3),
+                createQuestionReplaceEntity(num = 4),
+                createQuestionReplaceEntity(num = 5),
+            ),
+            results = listOf(
+                createResultReplaceEntity(
+                    gender = Gender.MALE,
+                    result = "вот {num1} и {num2} так {num1} без {num3} в {num4} над {num5}",
+                ),
+                createResultReplaceEntity(gender = Gender.MALE),
+            ),
+        )
+
+        val expected = inputAdapter.toSendMessage(
+            "[b]${AbstractTestHandler.TEST_DONE_TEXT}[/b]\n\n" +
+                "вот Ответ Б и Ответ В так Ответ Б без Ответ Г в Ответ Д над Ответ А"
+        )
+
+        every { testReplaceService.getTest(currentTestEntity.testId) } returns test
+
+        replaceTestHandler.getObject(inputAdapter, currentTestEntity, context) shouldBe expected
+
+        verify(exactly = 1) { currentTestService.removeCurrentTest(currentTestEntity.userId) }
+    }
+
+    @Test
+    fun `success getObject - save answer`() {
+        val inputAdapter = createInputAdapter(
+            text = "Ответ А",
+            button = null,
+            command = null,
+        )
+        val currentTestEntity = createCurrentTestEntity(
+            userId = inputAdapter.user.id,
+            type = TestType.REPLACE,
+            answers = listOf(
+                createCurrentAnswerEntity(num = 1),
+            ),
+        )
+
+        val replacedCurrentTest = currentTestEntity.withAnswer(inputAdapter.text!!)
+
+        val context = HandlerContext()
+
+        val test = createTestReplaceViewEntity(
+            questions = listOf(
+                createQuestionReplaceEntity(num = 1),
+                createQuestionReplaceEntity(num = 2),
+                createQuestionReplaceEntity(num = 3),
+            ),
+        )
+
+        every { testReplaceService.getTest(currentTestEntity.testId) } returns test
+
+        val answerNum = replacedCurrentTest.getNeedAnswerNum()
+
+        val expected = SendMessageAdapter(
+            chatId = inputAdapter.chatId,
+            clearButtonsLater = true,
+            text = "[u]${AbstractTestHandler.ANSWER_ACCEPTED_TEXT}[/u]\n\n" +
+                "[b]${ReplaceTestHandler.ANSWER_TO_QUESTION_TEXT}[/b]\n\n" +
+                test.questions.first { it.num == answerNum }.question,
+            buttons = listOf(
+                listOfNotNull(
+                    ButtonAdapter.createCancelAnswerButton(),
+                    ButtonAdapter.createExitTestButton(),
+                ),
+            ),
+        )
+
+        replaceTestHandler.getObject(inputAdapter, currentTestEntity, context) shouldBe expected
+
+        verify(exactly = 1) { currentTestService.replaceCurrentTest(replacedCurrentTest) }
+    }
+
+    @ParameterizedTest
+    @MethodSource("successGetObjectProvider")
+    fun `success getObject - without save answer`(
+        inputAdapter: InputAdapter,
+        context: HandlerContext,
+        addedMessage: String,
+    ) {
+        val currentTestEntity = createCurrentTestEntity(
+            userId = inputAdapter.user.id,
+            type = TestType.REPLACE,
+            answers = listOf(
+                createCurrentAnswerEntity(num = 1),
+            ),
+        )
+
+        val test = createTestReplaceViewEntity(
+            questions = listOf(
+                createQuestionReplaceEntity(num = 1),
+                createQuestionReplaceEntity(num = 2),
+                createQuestionReplaceEntity(num = 3),
+            ),
+        )
+
+        every { testReplaceService.getTest(currentTestEntity.testId) } returns test
+
+        val answerNum = currentTestEntity.getNeedAnswerNum()
+
+        val expected = SendMessageAdapter(
+            chatId = inputAdapter.chatId,
+            clearButtonsLater = true,
+            text = "[u]$addedMessage[/u]\n\n[b]${ReplaceTestHandler.ANSWER_TO_QUESTION_TEXT}[/b]\n\n" +
+                test.questions.first { it.num == answerNum }.question,
+            buttons = listOf(
+                listOfNotNull(
+                    ButtonAdapter.createCancelAnswerButton(),
+                    ButtonAdapter.createExitTestButton(),
+                ),
+            ),
+        )
+
+        replaceTestHandler.getObject(inputAdapter, currentTestEntity, context) shouldBe expected
+
+        verify(exactly = 0) { currentTestService.replaceCurrentTest(any()) }
+    }
+}

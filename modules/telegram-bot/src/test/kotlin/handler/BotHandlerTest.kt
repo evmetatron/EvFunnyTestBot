@@ -1,18 +1,18 @@
 package handler
 
-import com.evmetatron.evfunnytest.dto.context.HandlerContext
-import com.evmetatron.evfunnytest.handler.BotHandler
+import io.github.evmetatron.evfunnytest.dto.context.HandlerContext
+import io.github.evmetatron.evfunnytest.handler.BotHandler
 import fixtures.createCurrentTestEntity
 import fixtures.createEditButtonsAdapter
 import fixtures.createRemoveButtonsEntity
 import fixtures.createSendMessageAdapter
 import fixtures.createUpdate
 import fixtures.faker
-import com.evmetatron.evfunnytest.handler.input.InputHandler
-import com.evmetatron.evfunnytest.service.CurrentTestService
-import com.evmetatron.evfunnytest.service.RemoveButtonsService
-import com.evmetatron.evfunnytest.utils.toInputAdapter
-import com.evmetatron.evfunnytest.utils.toTelegramMessage
+import io.github.evmetatron.evfunnytest.handler.input.InputHandler
+import io.github.evmetatron.evfunnytest.service.CurrentTestService
+import io.github.evmetatron.evfunnytest.service.RemoveButtonsService
+import io.github.evmetatron.evfunnytest.utils.toInputAdapter
+import io.github.evmetatron.evfunnytest.utils.toTelegramMessage
 import fixtures.createTelegramProperties
 import io.mockk.coEvery
 import io.mockk.coVerify
