@@ -10,13 +10,12 @@ import io.github.evmetatron.evfunnytest.storage.memory.entity.RemoveButtonsEntit
 import io.github.evmetatron.evfunnytest.utils.toInputAdapter
 import io.github.evmetatron.evfunnytest.utils.toTelegramMessage
 import io.github.evmetatron.evfunnytest.utils.toTelegramSendMessage
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.telegram.telegrambots.bots.TelegramLongPollingBot
@@ -33,7 +32,7 @@ internal class BotHandler(
     private val removeButtonsService: RemoveButtonsService,
     private val inputHandler: InputHandler?,
 ) : TelegramLongPollingBot() {
-    private val logger: Logger = LoggerFactory.getLogger(this::class.java)
+    private val logger = KotlinLogging.logger {}
 
     override fun getBotToken(): String =
         telegramProperties.token
@@ -42,7 +41,7 @@ internal class BotHandler(
         telegramProperties.name
 
     override fun onUpdateReceived(update: Update): Unit = runBlocking {
-        logger.info("On update $update")
+        logger.info { "On update $update" }
 
         val input = update.toInputAdapter()
 
@@ -63,7 +62,7 @@ internal class BotHandler(
                 }
 
                 else -> {
-                    logger.error("No publishers for $message")
+                    logger.error { "No publishers for $message" }
                     executeErrorMessage(update)
                     null
                 }
@@ -73,10 +72,10 @@ internal class BotHandler(
                 removeButtonsService.registerMessage(input.user.id, input.chatId, messageId)
             }
         } catch (e: TelegramApiException) {
-            logger.error("Telegram api error ${e.stackTraceToString()}")
+            logger.error(e) { "Telegram api error" }
             executeErrorMessage(update)
         } catch (e: InternalLogicException) {
-            logger.error("Internal logic error ${e.stackTraceToString()}")
+            logger.error(e) { "Internal logic error" }
             executeErrorMessage(update)
         }
     }
@@ -98,7 +97,7 @@ internal class BotHandler(
                         }
                     )
                 } catch (e: TelegramApiException) {
-                    logger.error("Telegram api error ${e.stackTraceToString()}")
+                    logger.error(e) { "Telegram api error" }
                 }
             }
         }
