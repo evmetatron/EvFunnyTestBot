@@ -3,8 +3,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
 	id("java-test-fixtures")
 	id("io.gitlab.arturbosch.detekt") version "1.23.8"
-	id("org.springframework.boot") version "2.7.3"
-	id("io.spring.dependency-management") version "1.0.13.RELEASE"
+	id("org.springframework.boot") version "4.1.1"
+	id("io.spring.dependency-management") version "1.1.7"
 	kotlin("jvm") version "2.0.21"
 	kotlin("plugin.spring") version "2.0.21"
 }
