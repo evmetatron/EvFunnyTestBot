@@ -22,6 +22,9 @@ class InstanceRedisContainer(
 
             System.setProperty("spring.redis.host", redis.host)
             System.setProperty("spring.redis.port", redis.getMappedPort(PORT).toString())
+            // Контейнер поднимается без auth — фиксируем пустой пароль, чтобы тест не подхватил
+            // EV_REDIS_PASSWORD из окружения разработчика и не слал AUTH на passwordless Redis.
+            System.setProperty("spring.redis.password", "")
 
             return redis
         }
