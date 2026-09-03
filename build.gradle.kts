@@ -49,8 +49,8 @@ subprojects {
 		implementation("com.google.code.gson:gson")
 
 		testImplementation("org.springframework.boot:spring-boot-starter-test")
-		testImplementation("io.kotest:kotest-runner-junit5:5.4.1")
-		testImplementation("io.mockk:mockk:1.13.13")
+		testImplementation("io.kotest:kotest-runner-junit5:6.2.4")
+		testImplementation("io.mockk:mockk:1.14.11")
 		testImplementation("org.junit.jupiter:junit-jupiter")
 		testImplementation("org.junit.jupiter:junit-jupiter-api")
 		testImplementation("org.junit.jupiter:junit-jupiter-engine")

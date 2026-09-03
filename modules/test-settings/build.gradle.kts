@@ -1,6 +1,6 @@
 description = "settings"
 
 dependencies {
-    implementation("org.testcontainers:testcontainers:1.17.3")
-    implementation("org.testcontainers:postgresql:1.17.3")
+    implementation("org.testcontainers:testcontainers:2.0.5")
+    implementation("org.testcontainers:postgresql:2.0.5")
 }

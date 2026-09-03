@@ -10,7 +10,7 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql")
 
     testImplementation(project(":modules:test-settings"))
-    testImplementation("org.testcontainers:junit-jupiter:1.17.3")
-    testImplementation("org.testcontainers:testcontainers:1.17.3")
-    testImplementation("org.testcontainers:postgresql:1.17.3")
+    testImplementation("org.testcontainers:junit-jupiter:2.0.5")
+    testImplementation("org.testcontainers:testcontainers:2.0.5")
+    testImplementation("org.testcontainers:postgresql:2.0.5")
 }
