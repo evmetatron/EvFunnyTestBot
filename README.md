@@ -16,6 +16,18 @@
 
 **EV_POSTGRES_PASSWORD** - Пароль в Postgres
 
+### Необязательные (по умолчанию localhost)
+
+**EV_POSTGRES_HOST** - Хост Postgres (по умолчанию `localhost`)
+
+**EV_POSTGRES_PORT** - Порт Postgres (по умолчанию `5432`)
+
+**EV_REDIS_HOST** - Хост Redis (по умолчанию `localhost`)
+
+**EV_REDIS_PORT** - Порт Redis (по умолчанию `6379`)
+
+**EV_REDIS_PASSWORD** - Пароль Redis (по умолчанию пустой)
+
 ## Перед запуском приложения
 
 Скопировать файл .env.local в .env
