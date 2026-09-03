@@ -3,9 +3,10 @@ spring:
     enabled: true
     baseline-on-migrate: true
   datasource:
-    url: jdbc:postgresql://localhost:5432/${EV_POSTGRES_DB}
+    url: jdbc:postgresql://${EV_POSTGRES_HOST:localhost}:${EV_POSTGRES_PORT:5432}/${EV_POSTGRES_DB}
     username: ${EV_POSTGRES_USERNAME}
     password: ${EV_POSTGRES_PASSWORD}
   redis:
-    host: localhost
-    port: 6379
+    host: ${EV_REDIS_HOST:localhost}
+    port: ${EV_REDIS_PORT:6379}
+    password: ${EV_REDIS_PASSWORD:}

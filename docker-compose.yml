@@ -3,7 +3,7 @@ services:
   evfunnytest_db:
     image: 'postgres:14'
     ports:
-      - '5432:5432'
+      - '${EV_POSTGRES_PORT:-5432}:5432'
     environment:
       POSTGRES_DB: ${EV_POSTGRES_DB}
       POSTGRES_USER: ${EV_POSTGRES_USERNAME}
@@ -13,6 +13,6 @@ services:
   evfunnytest_redis:
     image: redis
     ports:
-      - '6379:6379'
+      - '${EV_REDIS_PORT:-6379}:6379'
 volumes:
   postgres_data: null
