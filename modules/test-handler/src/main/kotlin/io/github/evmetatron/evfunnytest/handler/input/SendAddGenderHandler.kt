@@ -36,9 +36,9 @@ class SendAddGenderHandler : AbstractInputHandler() {
         currentTestEntity: CurrentTestEntity?,
         context: HandlerContext,
     ): MessageAdapter {
-        val addedText = when (true) {
+        val addedText = when {
             context.isHandledStart() -> START_TEST_TEXT
-            (inputAdapter.button?.type == ButtonType.CANCEL_ANSWER) -> CANCEL_ANSWER_TEXT
+            inputAdapter.button?.type == ButtonType.CANCEL_ANSWER -> CANCEL_ANSWER_TEXT
             else -> ERROR_MESSAGE_TEXT
         }
 

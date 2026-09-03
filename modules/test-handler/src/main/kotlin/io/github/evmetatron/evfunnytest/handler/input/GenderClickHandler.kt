@@ -3,6 +3,7 @@ package io.github.evmetatron.evfunnytest.handler.input
 import io.github.evmetatron.evfunnytest.dto.adapter.InputAdapter
 import io.github.evmetatron.evfunnytest.dto.adapter.MessageAdapter
 import io.github.evmetatron.evfunnytest.dto.button.GenderButton
+import io.github.evmetatron.evfunnytest.dto.button.toConcreteButtonAs
 import io.github.evmetatron.evfunnytest.dto.context.HandlerContext
 import io.github.evmetatron.evfunnytest.enumerable.ButtonType
 import io.github.evmetatron.evfunnytest.exception.CurrentTestNotFound
@@ -35,7 +36,7 @@ class GenderClickHandler(
         currentTestEntity: CurrentTestEntity?,
         context: HandlerContext,
     ): MessageAdapter {
-        val genderButton = inputAdapter.button?.toConcreteButton() as GenderButton
+        val genderButton = inputAdapter.button.toConcreteButtonAs<GenderButton>()
 
         if (currentTestEntity == null) {
             throw CurrentTestNotFound()

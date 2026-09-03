@@ -9,7 +9,6 @@ import io.github.evmetatron.evfunnytest.dto.button.BaseButton
 import io.github.evmetatron.evfunnytest.enumerable.BotCommand
 import io.github.evmetatron.evfunnytest.exception.TelegramPropertyException
 import io.github.evmetatron.evfunnytest.exception.TelegramSelectionTypeNotFound
-import com.google.gson.Gson
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup
@@ -54,7 +53,7 @@ fun Update.toInputAdapter(): InputAdapter =
             )
         } ?: throw TelegramPropertyException(),
         button = callbackQuery?.data
-            ?.let { Gson().fromJson(it, BaseButton::class.java) },
+            ?.let { BaseButton.fromJson(it) },
         command = message?.text?.let { BotCommand.getCommandByInput(it) },
     )
 
