@@ -10,6 +10,13 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
+    # Мажорные версии обновляем вручную отдельными PR — они почти всегда
+    # тянут ломающие изменения (Spring Boot, Kotlin, Gradle, testcontainers,
+    # kotest, telegrambots). Dependabot ведёт только minor/patch.
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
     groups:
       spring:
         patterns:
