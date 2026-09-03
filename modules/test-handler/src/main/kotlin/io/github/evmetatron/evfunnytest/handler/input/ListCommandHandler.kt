@@ -51,7 +51,7 @@ class ListCommandHandler(
         currentTestEntity: CurrentTestEntity?,
         context: HandlerContext,
     ): MessageAdapter {
-        val pageButton = inputAdapter.button?.toConcreteButton() as PageButton?
+        val pageButton = inputAdapter.button?.toConcreteButton() as? PageButton
 
         val offset = pageButton?.offset ?: DEFAULT_OFFSET
 

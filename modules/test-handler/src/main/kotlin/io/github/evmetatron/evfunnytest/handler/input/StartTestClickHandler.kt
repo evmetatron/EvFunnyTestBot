@@ -3,6 +3,7 @@ package io.github.evmetatron.evfunnytest.handler.input
 import io.github.evmetatron.evfunnytest.dto.adapter.InputAdapter
 import io.github.evmetatron.evfunnytest.dto.adapter.MessageAdapter
 import io.github.evmetatron.evfunnytest.dto.button.StartTestButton
+import io.github.evmetatron.evfunnytest.dto.button.toConcreteButtonAs
 import io.github.evmetatron.evfunnytest.dto.context.HandlerContext
 import io.github.evmetatron.evfunnytest.enumerable.ButtonType
 import io.github.evmetatron.evfunnytest.exception.InputHandlerNotFoundException
@@ -40,7 +41,7 @@ class StartTestClickHandler(
         currentTestEntity: CurrentTestEntity?,
         context: HandlerContext,
     ): MessageAdapter {
-        val startTestButton = inputAdapter.button?.toConcreteButton() as StartTestButton
+        val startTestButton = inputAdapter.button.toConcreteButtonAs<StartTestButton>()
 
         if (inputHandler == null) {
             throw TestHandlerNotFoundException()

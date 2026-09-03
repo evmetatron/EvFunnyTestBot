@@ -52,7 +52,7 @@ abstract class AbstractTestHandler(
         val isCancelAnswerButton = inputAdapter.button?.type == ButtonType.CANCEL_ANSWER
         val isStart = context.isHandledStart()
 
-        return when (true) {
+        return when {
             isGenderButton -> ANSWER_ACCEPTED_TEXT
             isCancelAnswerButton -> ANSWER_CANCELED_TEXT
             isStart -> STARTED_TEST_TEXT
