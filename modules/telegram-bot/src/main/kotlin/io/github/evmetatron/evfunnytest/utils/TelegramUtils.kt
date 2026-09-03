@@ -14,6 +14,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup
 import org.telegram.telegrambots.meta.api.objects.Chat
 import org.telegram.telegrambots.meta.api.objects.EntityType
+import org.telegram.telegrambots.meta.api.objects.Message
 import org.telegram.telegrambots.meta.api.objects.MessageEntity
 import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup
@@ -24,10 +25,16 @@ private const val BB_INDEX_MATCH = 0
 private const val BB_INDEX_SELECTION = 1
 private const val BB_INDEX_WORD = 2
 
+// Для callback-запроса верхнеуровневого message нет — берём сообщение, к которому
+// прикреплена кнопка. Для обычного апдейта это само входящее сообщение.
+private fun Update.originMessage(): Message? =
+    message ?: callbackQuery?.message
+
+private fun <T : Any> T?.orTelegramError(): T =
+    this ?: throw TelegramPropertyException()
+
 fun Update.getChat(): Chat =
-    message?.chat
-        ?: callbackQuery?.message?.chat
-        ?: throw TelegramPropertyException()
+    originMessage()?.chat.orTelegramError()
 
 fun Update.toTelegramSendMessage(text: String): SendMessage =
     SendMessage().apply {
@@ -35,27 +42,24 @@ fun Update.toTelegramSendMessage(text: String): SendMessage =
         this.text = text
     }
 
-fun Update.toInputAdapter(): InputAdapter =
-    InputAdapter(
-        chatId = message?.chat?.id
-            ?: callbackQuery?.message?.chat?.id
-            ?: throw TelegramPropertyException(),
-        messageId = message?.messageId
-            ?: callbackQuery?.message?.messageId
-            ?: throw TelegramPropertyException(),
-        text = message?.text ?: callbackQuery.message?.text,
-        user = (message?.from ?: callbackQuery?.from)?.let { user ->
-            UserAdapter(
-                id = user.id,
-                firstName = user.firstName,
-                lastName = user.lastName,
-                userName = user.userName,
-            )
-        } ?: throw TelegramPropertyException(),
-        button = callbackQuery?.data
-            ?.let { BaseButton.fromJson(it) },
+fun Update.toInputAdapter(): InputAdapter {
+    val origin = originMessage().orTelegramError()
+    val from = (message?.from ?: callbackQuery?.from).orTelegramError()
+
+    return InputAdapter(
+        chatId = origin.chat?.id.orTelegramError(),
+        messageId = origin.messageId.orTelegramError(),
+        text = message?.text ?: callbackQuery?.message?.text,
+        user = UserAdapter(
+            id = from.id,
+            firstName = from.firstName,
+            lastName = from.lastName,
+            userName = from.userName,
+        ),
+        button = callbackQuery?.data?.let { BaseButton.fromJson(it) },
         command = message?.text?.let { BotCommand.getCommandByInput(it) },
     )
+}
 
 fun MessageAdapter.toTelegramMessage(): BotApiMethod<*> =
     when (this) {
