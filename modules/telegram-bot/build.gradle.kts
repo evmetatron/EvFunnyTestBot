@@ -7,5 +7,5 @@ dependencies {
     testImplementation(testFixtures(project(":modules:test-handler")))
 
     testFixturesImplementation(testFixtures(project(":modules:test-handler")))
-    testFixturesImplementation("org.telegram:telegrambots-meta:5.6.0")
+    testFixturesImplementation("org.telegram:telegrambots-meta:10.2.1")
 }
