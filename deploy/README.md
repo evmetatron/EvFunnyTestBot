@@ -60,11 +60,18 @@ kubectl apply -k .
 
 ## Автоматический деплой
 
-Целевой пайплайн в `.github/workflows/main.yml`: `analyse` → `build-image` (пуш в GHCR)
-→ `deploy` (`kubectl apply -k` с образом, привязанным к SHA коммита).
+`.github/workflows/main.yml`: `analyse` → `build-image` (пуш в GHCR) → `deploy`.
 
-Джоба `build-image` добавляется в #90, `deploy` — следующим PR. `deploy` потребует
-секрет репозитория `KUBE_CONFIG` (base64 от kubeconfig с правами на namespace `evfunnytest`).
+Джоба `deploy` включается только на пуш тега `vX.Y.Z` (`github.ref_type == 'tag'`) —
+то есть на релиз (см. корневой `README.md`, раздел «Релиз»), не на каждый merge в
+master. Она проставляет в `kustomization.yaml` тег образа, соответствующий тегу
+релиза, и делает `kubectl apply -k`.
+
+Требует секрет **`KUBE_CONFIG`** — base64 от kubeconfig с доступом к namespace
+`evfunnytest` (репозиторный секрет или секрет GitHub Environment `production`,
+на который смотрит джоба). Пока секрета нет, джоба сама себя пропускает
+(предупреждение в логе), остальной пайплайн не ломается — образ всё равно
+собирается и публикуется.
 
 ## Известные ограничения
 
