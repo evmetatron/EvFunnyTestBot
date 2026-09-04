@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bot
+  namespace: evfunnytest
+  labels:
+    app: bot
+spec:
+  replicas: 1
+  # Long polling: одновременно не должно работать двух инстансов бота.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: bot
+  template:
+    metadata:
+      labels:
+        app: bot
+    spec:
+      initContainers:
+        - name: wait-for-deps
+          image: busybox:1.37.0
+          command:
+            - sh
+            - -c
+            - |
+              until nc -z postgres 5432; do echo "waiting for postgres"; sleep 2; done
+              until nc -z redis 6379; do echo "waiting for redis"; sleep 2; done
+      containers:
+        - name: bot
+          image: ghcr.io/evmetatron/evfunnytestbot:latest
+          envFrom:
+            - secretRef:
+                name: evfunnytest-secrets
+          env:
+            - name: EV_POSTGRES_HOST
+              value: postgres
+            - name: EV_REDIS_HOST
+              value: redis
+          resources:
+            requests:
+              cpu: 100m
+              memory: 384Mi
+            limits:
+              memory: 512Mi
