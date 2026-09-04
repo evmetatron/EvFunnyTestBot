@@ -77,9 +77,17 @@ Workflow сам:
 `RELEASE_PAT` — Personal Access Token (fine-grained, права `Contents: Read and write`
 на этот репозиторий). Пуш от встроенного `GITHUB_TOKEN` другие workflow не
 запускает — это защита GitHub от рекурсии. Без `RELEASE_PAT` релиз всё равно
-соберётся (версия, changelog, тег, GitHub Release), но сборку образа и деплой
-для этого тега придётся запустить вручную: Actions → **Build and deploy** →
-**Run workflow** → в поле «Use workflow from» выбрать нужный тег.
+соберётся (версия, changelog, тег, GitHub Release), но `main.yml` для этого тега
+не запустится сам. `workflow_dispatch` тут не поможет: `build-image` публикует
+образ только на настоящий push (см. `main.yml`), поэтому единственный рабочий
+фолбэк — запушить уже существующий тег ещё раз, но от своего аккаунта:
+
+```bash
+git fetch --tags origin
+git push origin refs/tags/vX.Y.Z
+```
+
+Такой push (не от `GITHUB_TOKEN`) триггерит `main.yml` как обычно.
 
 Коммиты/заголовки PR стоит вести в формате Conventional Commits
 (`feat: ...`, `fix: ...`, `refactor: ...`, `chore: ...`) — иначе они попадут
