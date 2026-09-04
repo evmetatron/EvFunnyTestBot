@@ -11,6 +11,7 @@ import io.github.evmetatron.evfunnytest.utils.toInputAdapter
 import io.github.evmetatron.evfunnytest.utils.toTelegramMessage
 import io.github.evmetatron.evfunnytest.utils.toTelegramSendMessage
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -77,6 +78,8 @@ internal class BotHandler(
         } catch (e: InternalLogicException) {
             logger.error(e) { "Internal logic error" }
             executeErrorMessage(update)
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             logger.error(e) { "Unexpected error while handling update" }
             executeErrorMessage(update)
@@ -113,6 +116,8 @@ internal class BotHandler(
     private fun executeErrorMessage(update: Update) {
         try {
             execute(update.toTelegramSendMessage("Не удалось обработать запрос"))
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             logger.error(e) { "Failed to deliver the fallback error message" }
         }

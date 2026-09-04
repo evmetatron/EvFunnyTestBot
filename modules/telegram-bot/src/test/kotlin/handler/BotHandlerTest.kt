@@ -13,6 +13,7 @@ import io.github.evmetatron.evfunnytest.service.CurrentTestService
 import io.github.evmetatron.evfunnytest.service.RemoveButtonsService
 import io.github.evmetatron.evfunnytest.utils.toInputAdapter
 import io.github.evmetatron.evfunnytest.utils.toTelegramMessage
+import io.github.evmetatron.evfunnytest.utils.toTelegramSendMessage
 import fixtures.createTelegramProperties
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -27,6 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup
 import org.telegram.telegrambots.meta.api.objects.Message
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException
 
 @ExtendWith(MockKExtension::class)
 internal class BotHandlerTest {
@@ -130,6 +132,42 @@ internal class BotHandlerTest {
 
         verify(exactly = 1) { botHandler.execute(editMarkup) }
         verify(exactly = 1) { botHandler.execute(any<EditMessageReplyMarkup>()) }
+    }
+
+    @Test
+    fun `onUpdateReceived - unexpected error delivers the fallback message once`() {
+        val update = createUpdate()
+        val inputAdapter = update.toInputAdapter()
+        val context = HandlerContext()
+        val currentTest = createCurrentTestEntity(userId = inputAdapter.user.id)
+        val fallback = update.toTelegramSendMessage("Не удалось обработать запрос")
+
+        every { removeButtonsService.getByUserId(inputAdapter.user.id) } returns null
+        every { currentTestService.getCurrentTest(inputAdapter.user.id) } returns currentTest
+        every { inputHandler.getObject(inputAdapter, currentTest, context) } throws RuntimeException("boom")
+        every { botHandler.execute(fallback) } returns Message()
+
+        botHandler.onUpdateReceived(update)
+
+        verify(exactly = 1) { botHandler.execute(fallback) }
+    }
+
+    @Test
+    fun `onUpdateReceived - a failing fallback message is logged, not propagated`() {
+        val update = createUpdate()
+        val inputAdapter = update.toInputAdapter()
+        val context = HandlerContext()
+        val currentTest = createCurrentTestEntity(userId = inputAdapter.user.id)
+        val fallback = update.toTelegramSendMessage("Не удалось обработать запрос")
+
+        every { removeButtonsService.getByUserId(inputAdapter.user.id) } returns null
+        every { currentTestService.getCurrentTest(inputAdapter.user.id) } returns currentTest
+        every { inputHandler.getObject(inputAdapter, currentTest, context) } throws RuntimeException("boom")
+        every { botHandler.execute(fallback) } throws TelegramApiException("nope")
+
+        botHandler.onUpdateReceived(update)
+
+        verify(exactly = 1) { botHandler.execute(fallback) }
     }
 
     @Test
