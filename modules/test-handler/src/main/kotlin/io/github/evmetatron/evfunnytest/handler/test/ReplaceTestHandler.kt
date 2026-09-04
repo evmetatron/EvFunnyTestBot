@@ -1,6 +1,5 @@
 package io.github.evmetatron.evfunnytest.handler.test
 
-import io.github.evmetatron.evfunnytest.dto.adapter.ButtonAdapter
 import io.github.evmetatron.evfunnytest.dto.adapter.InputAdapter
 import io.github.evmetatron.evfunnytest.dto.adapter.MessageAdapter
 import io.github.evmetatron.evfunnytest.dto.adapter.SendMessageAdapter
@@ -76,9 +75,7 @@ class ReplaceTestHandler(
 
         val answerNum = replacedCurrentTest.getNeedAnswerNum()
 
-        val addedMessage = getAddedMessage(inputAdapter, context)
-            ?: isMessageOnly.takeIf { it }?.let { ANSWER_ACCEPTED_TEXT }
-            ?: ERROR_TEXT
+        val addedMessage = resolveAddedMessage(inputAdapter, context, isMessageOnly, ERROR_TEXT)
 
         val question = test.questions.first { it.num == answerNum }.question
 
@@ -86,16 +83,7 @@ class ReplaceTestHandler(
             chatId = inputAdapter.chatId,
             clearButtonsLater = true,
             text = "[u]$addedMessage[/u]\n\n[b]$ANSWER_TO_QUESTION_TEXT[/b]\n\n$question",
-            buttons = listOf(
-                listOfNotNull(
-                    (replacedCurrentTest.answers.isNotEmpty() || replacedCurrentTest.gender != null)
-                        .takeIf { it }
-                        ?.let {
-                            ButtonAdapter.createCancelAnswerButton()
-                        },
-                    ButtonAdapter.createExitTestButton(),
-                ),
-            ),
+            buttons = listOf(controlButtonsRow(replacedCurrentTest)),
         )
     }
 }
