@@ -1,0 +1,71 @@
+[changelog]
+header = """
+# Changelog
+
+Все заметные изменения в проекте документируются в этом файле.\n
+"""
+body = """
+{% if version %}\
+    ## [{{ version | trim_start_matches(pat="v") }}] - {{ timestamp | date(format="%Y-%m-%d") }}
+{% else %}\
+    ## [Unreleased]
+{% endif %}\
+{% set group_order = [
+    "🚀 Features", "🐛 Bug Fixes", "⚡ Performance", "♻️ Refactor",
+    "📝 Documentation", "🧪 Tests", "👷 CI", "⬆️ Dependencies",
+    "🧹 Chores", "🔧 Other",
+] %}\
+{% for group_name in group_order %}\
+    {% set_global group_commits = commits | filter(attribute="group", value=group_name) %}\
+    {% if group_commits | length > 0 %}
+### {{ group_name }}
+{% for commit in group_commits %}
+- {{ commit.message | upper_first | trim }}\
+{% endfor %}
+    {% endif %}\
+{% endfor %}\n
+"""
+footer = ""
+trim = true
+postprocessors = []
+
+[git]
+conventional_commits = true
+filter_unconventional = false
+split_commits = false
+protect_breaking_commits = false
+filter_commits = false
+tag_pattern = "v[0-9]*"
+topo_order = false
+sort_commits = "oldest"
+
+commit_preprocessors = [
+  # берём только заголовок коммита — тело (у Dependabot туда попадает весь PR-текст) в changelog не нужно
+  { pattern = '(?s)\n.*', replace = "" },
+  # ссылка на PR из "... (#123)", которую github-сквош-мёрж дописывает в конец заголовка
+  { pattern = '\(#(\d+)\)$', replace = "([#${1}](https://github.com/evmetatron/EvFunnyTestBot/pull/${1}))" },
+]
+
+commit_parsers = [
+  # строгая грамматика Conventional Commits (тип + необязательные (scope)/! + ": ") —
+  # иначе "feature: ..." ловится как ^feat, "docker ..." как ^docs? и т.п.
+  { message = '^feat(\([^)]*\))?!?:\s', group = "🚀 Features" },
+  { message = '^fix(\([^)]*\))?!?:\s', group = "🐛 Bug Fixes" },
+  { message = '^perf(\([^)]*\))?!?:\s', group = "⚡ Performance" },
+  { message = '^refactor(\([^)]*\))?!?:\s', group = "♻️ Refactor" },
+  { message = '^docs?(\([^)]*\))?!?:\s', group = "📝 Documentation" },
+  { message = '^test(\([^)]*\))?!?:\s', group = "🧪 Tests" },
+  { message = '^ci(\([^)]*\))?!?:\s', group = "👷 CI" },
+  { message = '^chore\(release\):\s', skip = true },
+  # Dependabot: без явного commit-message.prefix в dependabot.yml коммиты идут как
+  # "Bump x from a to b" (без conventional-префикса вообще) — так у нас сейчас и есть.
+  # Правило на (deps)-scope добавлено на случай, если prefix когда-нибудь включим.
+  { message = "^[Bb]ump ", group = "⬆️ Dependencies" },
+  { message = '^(chore|build)\(deps\)', group = "⬆️ Dependencies" },
+  { message = '^chore(\([^)]*\))?!?:\s', group = "🧹 Chores" },
+  { message = ".*", group = "🔧 Other" },
+]
+
+[bump]
+# У бота уже была рабочая история до заведения тегов — стартуем не с 0.1.0, а с 1.0.0.
+initial_tag = "v1.0.0"
