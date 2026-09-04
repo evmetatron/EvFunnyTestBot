@@ -1,0 +1,27 @@
+# VCS
+.git
+.github
+
+# Gradle / build output
+.gradle
+build
+**/build
+
+# IDE
+.idea
+*.iml
+*.ipr
+*.iws
+.vscode
+
+# Local env / secrets
+.env
+.env.local
+
+# Infra manifests are not needed inside the image build context
+deploy
+docker-compose.yml
+
+# Docs
+*.md
+HELP.md
