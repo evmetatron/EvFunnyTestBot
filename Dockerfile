@@ -5,18 +5,9 @@ FROM eclipse-temurin:17-jdk-jammy AS build
 
 WORKDIR /app
 
-# Сначала только то, что влияет на резолв зависимостей — кэш слоя переживает правки кода.
-COPY gradlew ./
-COPY gradle ./gradle
-COPY settings.gradle.kts build.gradle.kts ./
-COPY detekt ./detekt
-COPY modules/test-handler/build.gradle.kts ./modules/test-handler/
-COPY modules/telegram-bot/build.gradle.kts ./modules/telegram-bot/
-COPY modules/test-settings/build.gradle.kts ./modules/test-settings/
-RUN --mount=type=cache,target=/root/.gradle \
-    ./gradlew --no-daemon dependencies -q || true
-
-COPY modules ./modules
+# Контекст сборки уже отфильтрован .dockerignore (нет .git, build/, .env* и т.п.).
+# Кэш зависимостей Gradle переживает пересборки через cache-mount ниже.
+COPY . .
 RUN --mount=type=cache,target=/root/.gradle \
     ./gradlew --no-daemon -x test -x detekt :modules:telegram-bot:bootJar
 
