@@ -34,7 +34,7 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: postgres:14
+          image: postgres:14.24
           ports:
             - containerPort: 5432
               name: postgres
@@ -59,16 +59,27 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data
+          # readiness — реальная проверка готовности принимать подключения;
+          # $(VAR) в командах проб k8s не разворачивает, поэтому shell-форма.
           readinessProbe:
             exec:
-              command: ["pg_isready", "-U", "$(POSTGRES_USER)", "-d", "$(POSTGRES_DB)"]
+              command:
+                - sh
+                - -c
+                - exec pg_isready -h 127.0.0.1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"
             initialDelaySeconds: 10
             periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+          # liveness — только «процесс жив и слушает порт», чтобы нагрузка или
+          # recovery не приводили к рестарту пода с 2Gi PVC.
           livenessProbe:
-            exec:
-              command: ["pg_isready", "-U", "$(POSTGRES_USER)", "-d", "$(POSTGRES_DB)"]
+            tcpSocket:
+              port: 5432
             initialDelaySeconds: 30
             periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 6
           resources:
             requests:
               cpu: 100m
