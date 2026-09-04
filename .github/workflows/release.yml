@@ -1,0 +1,104 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "Тип версии"
+        type: choice
+        default: auto
+        options:
+          - auto
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          # RELEASE_PAT нужен, чтобы пуш тега реально запустил main.yml: события,
+          # созданные встроенным GITHUB_TOKEN, не триггерят другие workflow (защита
+          # GitHub от рекурсии). Без секрета релиз всё равно соберётся — сборку
+          # образа и деплой для тега придётся запустить вручную (workflow_dispatch
+          # на main.yml с этим тегом в качестве ref).
+          token: ${{ secrets.RELEASE_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Determine bump args
+        id: bump_args
+        run: |
+          if [ "${{ inputs.bump }}" = "auto" ]; then
+            echo "value=--bumped-version" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=--bump ${{ inputs.bump }} --bumped-version" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Compute next version
+        id: bump
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: ${{ steps.bump_args.outputs.value }}
+
+      - name: Set version outputs
+        id: version
+        run: |
+          NEXT="${{ steps.bump.outputs.content }}"
+          if [ -z "$NEXT" ]; then
+            echo "::error::git-cliff didn't produce a next version — nothing to release?"
+            exit 1
+          fi
+          echo "Next version: $NEXT"
+          echo "tag=$NEXT" >> "$GITHUB_OUTPUT"
+          echo "number=${NEXT#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Bump version in build.gradle.kts
+        run: |
+          sed -i -E 's/^version = ".*"$/version = "${{ steps.version.outputs.number }}"/' build.gradle.kts
+          grep '^version' build.gradle.kts
+
+      - name: Update CHANGELOG.md
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --tag ${{ steps.version.outputs.tag }} -o CHANGELOG.md
+
+      - name: Commit and tag the release
+        run: |
+          git add build.gradle.kts CHANGELOG.md
+          git commit -m "chore(release): ${{ steps.version.outputs.tag }}"
+          git tag -a ${{ steps.version.outputs.tag }} -m "Release ${{ steps.version.outputs.tag }}"
+
+      - name: Render release notes
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --latest --strip all -o /tmp/release-notes.md
+
+      - name: Push
+        run: |
+          git push origin HEAD:master
+          git push origin ${{ steps.version.outputs.tag }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: ${{ steps.version.outputs.tag }}
+          body_path: /tmp/release-notes.md

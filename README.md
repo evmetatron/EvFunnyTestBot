@@ -54,3 +54,32 @@ docker-compose -p evfunnytest -f docker-compose.yml up --build -d
 ````
 ./gradlew detekt
 ````
+
+## Релиз
+
+Actions → **Release** → **Run workflow**. Можно выбрать тип версии (`auto` — по
+[Conventional Commits](https://www.conventionalcommits.org/) с прошлого релиза,
+либо принудительно `patch`/`minor`/`major`).
+
+Workflow сам:
+
+1. Считает следующую версию (`git-cliff`, конфиг — `cliff.toml`).
+2. Проставляет её в `version` корневого `build.gradle.kts`.
+3. Дописывает `CHANGELOG.md`.
+4. Коммитит и тегает `vX.Y.Z` прямо в `master`.
+5. Публикует запись в [GitHub Releases](../../releases) с текстом из changelog.
+
+Пуш тега `vX.Y.Z` запускает `main.yml`: сборка образа с этим тегом → пуш в GHCR
+→ деплой на VPS (см. `deploy/README.md`).
+
+**Чтобы пуш тега реально триггерил `main.yml`**, нужен секрет репозитория
+`RELEASE_PAT` — Personal Access Token (fine-grained, права `Contents: Read and write`
+на этот репозиторий). Пуш от встроенного `GITHUB_TOKEN` другие workflow не
+запускает — это защита GitHub от рекурсии. Без `RELEASE_PAT` релиз всё равно
+соберётся (версия, changelog, тег, GitHub Release), но сборку образа и деплой
+для этого тега придётся запустить вручную: Actions → **Build and deploy** →
+**Run workflow** → в поле «Use workflow from» выбрать нужный тег.
+
+Коммиты/заголовки PR стоит вести в формате Conventional Commits
+(`feat: ...`, `fix: ...`, `refactor: ...`, `chore: ...`) — иначе они попадут
+в changelog единым списком без группировки по типу.
