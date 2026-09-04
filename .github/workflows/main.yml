@@ -82,8 +82,11 @@ jobs:
     name: Deploy to VPS
     runs-on: ubuntu-latest
     needs: build-image
-    # Деплоим только релизы (пуш тега vX.Y.Z, см. release.yml), не каждый merge в master.
-    if: github.ref_type == 'tag'
+    # Деплоим только на настоящий push тега vX.Y.Z (см. release.yml) — не на
+    # workflow_dispatch с выбранным тегом в ref: build-image в этом случае образ
+    # не публикует (push там тоже гейтится github.event_name == 'push'), так что
+    # деплоить было бы нечего.
+    if: github.event_name == 'push' && github.ref_type == 'tag'
     environment:
       name: production
 
@@ -114,7 +117,13 @@ jobs:
       - name: Point the deployment at this release's image
         if: steps.gate.outputs.configured == 'true'
         run: |
-          sed -i "s/newTag: latest/newTag: ${{ github.ref_name }}/" deploy/k8s/kustomization.yaml
+          FILE=deploy/k8s/kustomization.yaml
+          if ! grep -q "newTag: latest" "$FILE"; then
+            echo "::error::Expected 'newTag: latest' in $FILE — did its images: block change shape?"
+            exit 1
+          fi
+          sed -i "s|newTag: latest|newTag: ${{ github.ref_name }}|" "$FILE"
+          grep "newTag:" "$FILE"
 
       - name: Apply manifests
         if: steps.gate.outputs.configured == 'true'
