@@ -1,5 +1,6 @@
 package io.github.evmetatron.evfunnytest.handler.test
 
+import io.github.evmetatron.evfunnytest.dto.adapter.ButtonAdapter
 import io.github.evmetatron.evfunnytest.dto.adapter.InputAdapter
 import io.github.evmetatron.evfunnytest.dto.adapter.MessageAdapter
 import io.github.evmetatron.evfunnytest.dto.adapter.SendMessageAdapter
@@ -44,7 +45,32 @@ abstract class AbstractTestHandler(
         return inputAdapter.toSendMessage(TEST_NOT_FOUND_TEXT)
     }
 
-    protected fun getAddedMessage(
+    /**
+     * Текст-подсказка над вопросом: приоритетно из [getAddedMessage], иначе
+     * [ANSWER_ACCEPTED_TEXT], если ответ был засчитан в этом апдейте, иначе [errorText].
+     */
+    protected fun resolveAddedMessage(
+        inputAdapter: InputAdapter,
+        context: HandlerContext,
+        answerAccepted: Boolean,
+        errorText: String,
+    ): String =
+        getAddedMessage(inputAdapter, context)
+            ?: ANSWER_ACCEPTED_TEXT.takeIf { answerAccepted }
+            ?: errorText
+
+    /**
+     * Строка управляющих кнопок под вопросом: «отменить ответ» (если есть что отменять)
+     * и «выйти из теста».
+     */
+    protected fun controlButtonsRow(currentTest: CurrentTestEntity): List<ButtonAdapter> =
+        listOfNotNull(
+            ButtonAdapter.createCancelAnswerButton()
+                .takeIf { currentTest.answers.isNotEmpty() || currentTest.gender != null },
+            ButtonAdapter.createExitTestButton(),
+        )
+
+    private fun getAddedMessage(
         inputAdapter: InputAdapter,
         context: HandlerContext,
     ): String? {

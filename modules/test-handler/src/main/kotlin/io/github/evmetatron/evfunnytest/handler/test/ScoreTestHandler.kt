@@ -68,9 +68,12 @@ class ScoreTestHandler(
 
         val answerNum = replacedCurrentTest.getNeedAnswerNum()
 
-        val addedMessage = getAddedMessage(inputAdapter, context)
-            ?: (button is TestVariableButton).takeIf { it }?.let { ANSWER_ACCEPTED_TEXT }
-            ?: ERROR_TEXT
+        val addedMessage = resolveAddedMessage(
+            inputAdapter,
+            context,
+            answerAccepted = button is TestVariableButton,
+            errorText = ERROR_TEXT,
+        )
 
         val question = test.questions.first { it.num == answerNum }
 
@@ -88,16 +91,7 @@ class ScoreTestHandler(
                             ).toBaseButton(),
                         )
                     }
-                } + listOf(
-                listOfNotNull(
-                    (replacedCurrentTest.answers.isNotEmpty() || replacedCurrentTest.gender != null)
-                        .takeIf { it }
-                        ?.let {
-                            ButtonAdapter.createCancelAnswerButton()
-                        },
-                    ButtonAdapter.createExitTestButton(),
-                ),
-            ),
+                } + listOf(controlButtonsRow(replacedCurrentTest)),
         )
     }
 
