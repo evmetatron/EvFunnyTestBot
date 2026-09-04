@@ -65,12 +65,13 @@ Workflow сам:
 
 1. Считает следующую версию (`git-cliff`, конфиг — `cliff.toml`).
 2. Проставляет её в `version` корневого `build.gradle.kts`.
-3. Дописывает `CHANGELOG.md`.
+3. Перегенерирует `CHANGELOG.md` целиком.
 4. Коммитит и тегает `vX.Y.Z` прямо в `master`.
 5. Публикует запись в [GitHub Releases](../../releases) с текстом из changelog.
 
-Пуш тега `vX.Y.Z` запускает `main.yml`: сборка образа с этим тегом → пуш в GHCR
-→ деплой на VPS (см. `deploy/README.md`).
+Пуш тега `vX.Y.Z` запускает `main.yml`: сборка образа с этим тегом → пуш в GHCR →
+деплой на VPS, если настроен секрет `KUBE_CONFIG` (см. `deploy/README.md`) — без
+него джоба деплоя пропускает себя с предупреждением, остальной пайплайн не падает.
 
 **Чтобы пуш тега реально триггерил `main.yml`**, нужен секрет репозитория
 `RELEASE_PAT` — Personal Access Token (fine-grained, права `Contents: Read and write`

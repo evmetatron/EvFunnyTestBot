@@ -13,6 +13,9 @@ on:
           - minor
           - major
 
+env:
+  GIT_CLIFF_VERSION: "2.14.1"
+
 permissions:
   contents: write
 
@@ -40,30 +43,29 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Determine bump args
-        id: bump_args
+      - name: Install git-cliff
         run: |
-          if [ "${{ inputs.bump }}" = "auto" ]; then
-            echo "value=--bumped-version" >> "$GITHUB_OUTPUT"
-          else
-            echo "value=--bump ${{ inputs.bump }} --bumped-version" >> "$GITHUB_OUTPUT"
-          fi
+          curl -sSL -o /tmp/git-cliff.tar.gz \
+            "https://github.com/orhun/git-cliff/releases/download/v${GIT_CLIFF_VERSION}/git-cliff-${GIT_CLIFF_VERSION}-x86_64-unknown-linux-gnu.tar.gz"
+          mkdir -p /tmp/git-cliff-extract
+          tar -xzf /tmp/git-cliff.tar.gz --strip-components=1 -C /tmp/git-cliff-extract
+          sudo install -m 755 /tmp/git-cliff-extract/git-cliff /usr/local/bin/git-cliff
+          git-cliff --version
 
-      - name: Compute next version
-        id: bump
-        uses: orhun/git-cliff-action@v4
-        with:
-          config: cliff.toml
-          args: ${{ steps.bump_args.outputs.value }}
-
-      - name: Set version outputs
+      - name: Determine next version
         id: version
         run: |
-          NEXT="${{ steps.bump.outputs.content }}"
+          if [ "${{ inputs.bump }}" = "auto" ]; then
+            NEXT=$(git-cliff --config cliff.toml --bumped-version)
+          else
+            NEXT=$(git-cliff --config cliff.toml --bump ${{ inputs.bump }} --bumped-version)
+          fi
           if [ -z "$NEXT" ]; then
             echo "::error::git-cliff didn't produce a next version — nothing to release?"
             exit 1
           fi
+          # git-cliff сохраняет префикс "v" существующих тегов (или initial_tag из
+          # cliff.toml для самого первого релиза) — NEXT уже вида "v1.2.3".
           echo "Next version: $NEXT"
           echo "tag=$NEXT" >> "$GITHUB_OUTPUT"
           echo "number=${NEXT#v}" >> "$GITHUB_OUTPUT"
@@ -74,10 +76,7 @@ jobs:
           grep '^version' build.gradle.kts
 
       - name: Update CHANGELOG.md
-        uses: orhun/git-cliff-action@v4
-        with:
-          config: cliff.toml
-          args: --tag ${{ steps.version.outputs.tag }} -o CHANGELOG.md
+        run: git-cliff --config cliff.toml --tag ${{ steps.version.outputs.tag }} -o CHANGELOG.md
 
       - name: Commit and tag the release
         run: |
@@ -86,10 +85,7 @@ jobs:
           git tag -a ${{ steps.version.outputs.tag }} -m "Release ${{ steps.version.outputs.tag }}"
 
       - name: Render release notes
-        uses: orhun/git-cliff-action@v4
-        with:
-          config: cliff.toml
-          args: --latest --strip all -o /tmp/release-notes.md
+        run: git-cliff --config cliff.toml --latest --strip all -o /tmp/release-notes.md
 
       - name: Push
         run: |
