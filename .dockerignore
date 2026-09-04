@@ -15,8 +15,7 @@ build
 .vscode
 
 # Local env / secrets
-.env
-.env.local
+.env*
 
 # Infra manifests are not needed inside the image build context
 deploy
