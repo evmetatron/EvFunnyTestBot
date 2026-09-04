@@ -11,6 +11,7 @@ import io.github.evmetatron.evfunnytest.utils.toInputAdapter
 import io.github.evmetatron.evfunnytest.utils.toTelegramMessage
 import io.github.evmetatron.evfunnytest.utils.toTelegramSendMessage
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -40,14 +41,14 @@ internal class BotHandler(
     override fun getBotUsername(): String =
         telegramProperties.name
 
+    @Suppress("TooGenericExceptionCaught")
     override fun onUpdateReceived(update: Update): Unit = runBlocking {
         logger.info { "On update $update" }
 
-        val input = update.toInputAdapter()
-
-        val currentTest = currentTestService.getCurrentTest(input.user.id)
-
         try {
+            val input = update.toInputAdapter()
+            val currentTest = currentTestService.getCurrentTest(input.user.id)
+
             removeButtonsService.getByUserId(input.user.id)
                 ?.apply { clearButtons(this) }
 
@@ -76,6 +77,11 @@ internal class BotHandler(
             executeErrorMessage(update)
         } catch (e: InternalLogicException) {
             logger.error(e) { "Internal logic error" }
+            executeErrorMessage(update)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            logger.error(e) { "Unexpected error while handling update" }
             executeErrorMessage(update)
         }
     }
@@ -106,7 +112,14 @@ internal class BotHandler(
         removeButtonsService.remove(removeButtonsEntity.userId)
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private fun executeErrorMessage(update: Update) {
-        execute(update.toTelegramSendMessage("Не удалось обработать запрос"))
+        try {
+            execute(update.toTelegramSendMessage("Не удалось обработать запрос"))
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            logger.error(e) { "Failed to deliver the fallback error message" }
+        }
     }
 }
