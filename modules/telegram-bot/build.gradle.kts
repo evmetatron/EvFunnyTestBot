@@ -1,4 +1,11 @@
+import org.springframework.boot.gradle.tasks.bundling.BootJar
+
 description = "telegram-bot"
+
+// Детерминированное имя исполняемого jar, чтобы Dockerfile мог копировать его по фиксированному пути.
+tasks.named<BootJar>("bootJar") {
+    archiveFileName.set("app.jar")
+}
 
 dependencies {
     implementation(project(":modules:test-handler"))
