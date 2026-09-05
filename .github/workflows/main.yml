@@ -93,11 +93,18 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Check KUBE_CONFIG is configured
+      - name: Gate the deploy
         id: gate
         env:
           KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+          RELEASE_TAG: ${{ github.ref_name }}
         run: |
+          # тег через env, а не ${{ }} в тексте скрипта — защита от shell-инъекции
+          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Tag '$RELEASE_TAG' не в формате vX.Y.Z — деплой пропущен (образ при этом опубликован в GHCR)."
+            exit 0
+          fi
           if [ -z "$KUBE_CONFIG" ]; then
             echo "configured=false" >> "$GITHUB_OUTPUT"
             echo "::warning::KUBE_CONFIG secret is not set — skipping deploy. Configure it once the cluster is ready (see deploy/README.md)."
@@ -121,15 +128,11 @@ jobs:
       - name: Point the deployment at this release's image
         if: steps.gate.outputs.configured == 'true'
         env:
-          # через env, а не ${{ }} прямо в скрипт — иначе имя тега подставляется
-          # в текст команды и допускает shell-инъекцию (напр. тег "v1$(...)")
+          # тег через env, а не ${{ }} в тексте скрипта — защита от shell-инъекции.
+          # Формат vX.Y.Z уже проверен в "Gate the deploy".
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
           FILE=deploy/k8s/kustomization.yaml
-          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "::error::Unexpected release tag '$RELEASE_TAG' — expected vX.Y.Z"
-            exit 1
-          fi
           if ! grep -q "newTag: latest" "$FILE"; then
             echo "::error::Expected 'newTag: latest' in $FILE — did its images: block change shape?"
             exit 1

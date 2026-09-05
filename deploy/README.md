@@ -62,12 +62,13 @@ kubectl apply -k .
 
 `.github/workflows/main.yml`: `analyse` → `build-image` (пуш в GHCR) → `deploy`.
 
-Джоба `deploy` включается только на настоящий push тега `vX.Y.Z`
+Джоба `deploy` включается только на настоящий push тега
 (`github.event_name == 'push' && github.ref_type == 'tag'`) — то есть на релиз,
 не на каждый merge в master и не на ручной `workflow_dispatch` с выбранным
-тегом (тогда `build-image` образ не публикует, деплоить было бы нечего). Она
-проставляет в `kustomization.yaml` тег образа, соответствующий тегу релиза, и
-делает `kubectl apply -k`.
+тегом (тогда `build-image` образ не публикует, деплоить было бы нечего). Тег
+не в формате `vX.Y.Z` (например `v2`, `v1.0.0-rc1`) джоба пропускает с
+предупреждением — не падает. Дальше она проставляет в `kustomization.yaml` тег
+образа, соответствующий тегу релиза, и делает `kubectl apply -k`.
 
 Требует секрет **`KUBE_CONFIG`** — base64 от kubeconfig с доступом к namespace
 `evfunnytest` (репозиторный секрет или секрет GitHub Environment `production`,
