@@ -95,8 +95,10 @@ jobs:
 
       - name: Check KUBE_CONFIG is configured
         id: gate
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
         run: |
-          if [ -z "${{ secrets.KUBE_CONFIG }}" ]; then
+          if [ -z "$KUBE_CONFIG" ]; then
             echo "configured=false" >> "$GITHUB_OUTPUT"
             echo "::warning::KUBE_CONFIG secret is not set — skipping deploy. Configure it once the cluster is ready (see deploy/README.md)."
           else
@@ -109,20 +111,30 @@ jobs:
 
       - name: Configure kubeconfig
         if: steps.gate.outputs.configured == 'true'
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
         run: |
           mkdir -p "$HOME/.kube"
-          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > "$HOME/.kube/config"
+          printf '%s' "$KUBE_CONFIG" | base64 -d > "$HOME/.kube/config"
           chmod 600 "$HOME/.kube/config"
 
       - name: Point the deployment at this release's image
         if: steps.gate.outputs.configured == 'true'
+        env:
+          # через env, а не ${{ }} прямо в скрипт — иначе имя тега подставляется
+          # в текст команды и допускает shell-инъекцию (напр. тег "v1$(...)")
+          RELEASE_TAG: ${{ github.ref_name }}
         run: |
           FILE=deploy/k8s/kustomization.yaml
+          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Unexpected release tag '$RELEASE_TAG' — expected vX.Y.Z"
+            exit 1
+          fi
           if ! grep -q "newTag: latest" "$FILE"; then
             echo "::error::Expected 'newTag: latest' in $FILE — did its images: block change shape?"
             exit 1
           fi
-          sed -i "s|newTag: latest|newTag: ${{ github.ref_name }}|" "$FILE"
+          sed -i "s|newTag: latest|newTag: ${RELEASE_TAG}|" "$FILE"
           grep "newTag:" "$FILE"
 
       - name: Apply manifests
