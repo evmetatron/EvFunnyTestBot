@@ -54,3 +54,41 @@ docker-compose -p evfunnytest -f docker-compose.yml up --build -d
 ````
 ./gradlew detekt
 ````
+
+## Релиз
+
+Actions → **Release** → **Run workflow**. Можно выбрать тип версии (`auto` — по
+[Conventional Commits](https://www.conventionalcommits.org/) с прошлого релиза,
+либо принудительно `patch`/`minor`/`major`).
+
+Workflow сам:
+
+1. Считает следующую версию (`git-cliff`, конфиг — `cliff.toml`).
+2. Проставляет её в `version` корневого `build.gradle.kts`.
+3. Перегенерирует `CHANGELOG.md` целиком.
+4. Коммитит и тегает `vX.Y.Z` прямо в `master`.
+5. Публикует запись в [GitHub Releases](../../releases) с текстом из changelog.
+
+Пуш тега `vX.Y.Z` запускает `main.yml`: сборка образа с этим тегом → пуш в GHCR →
+деплой на VPS, если настроен секрет `KUBE_CONFIG` (см. `deploy/README.md`) — без
+него джоба деплоя пропускает себя с предупреждением, остальной пайплайн не падает.
+
+**Чтобы пуш тега реально триггерил `main.yml`**, нужен секрет репозитория
+`RELEASE_PAT` — Personal Access Token (fine-grained, права `Contents: Read and write`
+на этот репозиторий). Пуш от встроенного `GITHUB_TOKEN` другие workflow не
+запускает — это защита GitHub от рекурсии. Без `RELEASE_PAT` релиз всё равно
+соберётся (версия, changelog, тег, GitHub Release), но `main.yml` для этого тега
+не запустится сам. `workflow_dispatch` тут не поможет: `build-image` публикует
+образ только на настоящий push (см. `main.yml`). Единственный рабочий фолбэк —
+пересоздать тег от своего аккаунта, чтобы получился настоящий `push`-эвент
+(просто повторный `git push` того же тега на тот же коммит — no-op, эвента нет):
+
+```bash
+git fetch --tags origin
+git push origin :refs/tags/vX.Y.Z          # удалить тег на remote
+git push origin refs/tags/vX.Y.Z           # запушить заново — это триггерит main.yml
+```
+
+Коммиты/заголовки PR стоит вести в формате Conventional Commits
+(`feat: ...`, `fix: ...`, `refactor: ...`, `chore: ...`) — иначе они попадут
+в changelog единым списком без группировки по типу.
