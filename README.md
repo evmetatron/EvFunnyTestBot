@@ -79,15 +79,15 @@ Workflow сам:
 запускает — это защита GitHub от рекурсии. Без `RELEASE_PAT` релиз всё равно
 соберётся (версия, changelog, тег, GitHub Release), но `main.yml` для этого тега
 не запустится сам. `workflow_dispatch` тут не поможет: `build-image` публикует
-образ только на настоящий push (см. `main.yml`), поэтому единственный рабочий
-фолбэк — запушить уже существующий тег ещё раз, но от своего аккаунта:
+образ только на настоящий push (см. `main.yml`). Единственный рабочий фолбэк —
+пересоздать тег от своего аккаунта, чтобы получился настоящий `push`-эвент
+(просто повторный `git push` того же тега на тот же коммит — no-op, эвента нет):
 
 ```bash
 git fetch --tags origin
-git push origin refs/tags/vX.Y.Z
+git push origin :refs/tags/vX.Y.Z          # удалить тег на remote
+git push origin refs/tags/vX.Y.Z           # запушить заново — это триггерит main.yml
 ```
-
-Такой push (не от `GITHUB_TOKEN`) триггерит `main.yml` как обычно.
 
 Коммиты/заголовки PR стоит вести в формате Conventional Commits
 (`feat: ...`, `fix: ...`, `refactor: ...`, `chore: ...`) — иначе они попадут
