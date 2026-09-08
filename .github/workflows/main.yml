@@ -114,7 +114,7 @@ jobs:
 
       - name: Set up kubectl
         if: steps.gate.outputs.configured == 'true'
-        uses: azure/setup-kubectl@v4
+        uses: azure/setup-kubectl@v5
 
       - name: Configure kubeconfig
         if: steps.gate.outputs.configured == 'true'
